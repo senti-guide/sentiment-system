@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senti Guide</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="{% static 'LOGO.jpg' %}" alt="Senti Guide Logo">
+                <h2>Senti Guide</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
+                <li><a href="#"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
+                <li><a href="#"><i class="fas fa-clipboard-list"></i> Evaluation</a></li>
+            </ul>
+            <a href="{% url 'login' %}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="welcome-section">
+                <h1>Hola, BISUans!</h1>
+                <p>Welcome to <span class="highlight">Senti Guide!</span> Where your voices are brought to the heart of every event.</p>
+            </div>
+            <div class="reminders-section">
+                <div class="reminder-box">
+                    <h2>Reminders</h2>
+                </div>
+                <div class="extra-box">
+                    <!-- Placeholder for additional content or widgets -->
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senti Guide - Register</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
+    <link rel="stylesheet" href="{% static 'login.css' %}">
+</head>
+<body>
+    <div class="background">
+        <div class="card">
+            <div class="logo">
+                <img src="{% static 'LOGO.jpg' %}" alt="Senti Guide Logo">
+            </div>
+            <h1 class="title">Senti Guide</h1>
+            <h2 class="login-title">Register</h2>
+            <form>
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter Email">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter Password">
+                <button type="submit" class="login-button" formaction="">Register</button>
+            </form>
+            <div class="links">
+                <a>Already have an account?</a> | <a href="{% url 'login' %}">Login</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
