@@ -11,3 +11,7 @@ def register_view(request):
 
 def student_home_view(request):
     return render(request, 'student_home.html')
+
+def student_evaluation_view(request):
+    return render(request, 'student_evaluation.html')
+

@@ -14,14 +14,14 @@
         <!-- Sidebar -->
         <nav class="sidebar">
             <div class="logo">
-                <img src="{% static 'LOGO.jpg' %}" alt="Senti Guide Logo">
+                <img src="{% static 'SG_LOGO_WHITE.png' %}" alt="Senti Guide Logo">
                 <h2>Senti Guide</h2>
             </div>
             <ul class="nav-links">
                 <li><a href="#" class="active"><i class="fas fa-home"></i> Home</a></li>
                 <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
                 <li><a href="#"><i class="fas fa-calendar-alt"></i> Calendar</a></li>
-                <li><a href="#"><i class="fas fa-clipboard-list"></i> Evaluation</a></li>
+                <li><a href="{% url 'student_evaluation' %}"><i class="fas fa-clipboard-list"></i> Evaluation</a></li>
             </ul>
             <a href="{% url 'login' %}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
