@@ -9,5 +9,5 @@ def login_view(request):
 def register_view(request):
     return render(request, 'register.html')
 
-def home_view(request):
-    return render(request, 'home.html')
+def student_home_view(request):
+    return render(request, 'student_home.html')
