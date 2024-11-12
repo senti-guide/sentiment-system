@@ -16,13 +16,28 @@
             </div>
             <h1 class="title">Senti Guide</h1>
             <h2 class="login-title">Login</h2>
-            <form>
+            
+            <!-- Display error messages if any -->
+            {% if messages %}
+                <div class="error-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Updated form -->
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
                 <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Enter Email">
+                <input type="email" name="email" id="email" placeholder="Enter Email" required>
+                
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Enter Password">
-                <button type="submit" class="login-button" formaction="{% url 'student_home' %}">Login</button>
+                <input type="password" name="password" id="password" placeholder="Enter Password" required>
+                
+                <button type="submit" class="login-button">Login</button>
             </form>
+            
             <div class="links">
                 <a href="#">Forgot Password?</a> | <a href="{% url 'register' %}">Register</a>
             </div>
