@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senti Guide</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
-    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <link rel="stylesheet" href="{% static 'student_evaluation.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -27,19 +27,54 @@
         
         <!-- Main Content -->
         <div class="main-content">
-            <div class="welcome-section">
-                <h1>FOOOOOOOORM NIIIIIIIIII</h1>
-                <p>Welcome to <span class="highlight">Senti Guide!</span> Where your voices are brought to the heart of every event.</p>
-            </div>
-            <div class="reminders-section">
-                <div class="reminder-box">
-                    <h2>Reminders</h2>
-                </div>
-                <div class="extra-box">
-                    <!-- Placeholder for additional content or widgets -->
-                </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Event Name</th>
+                            <th>Date</th>
+                            <th>Evaluation Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-href="{% url 'student_evaluation_form' %}">
+                            <td>Event No. 1</td>
+                            <td>02/24/2024</td>
+                            <td><span class="status submitted"></span> Submitted</td>
+                        </tr>
+                        <tr data-href="{% url 'student_evaluation_form' %}">
+                            <td>Event No. 1</td>
+                            <td>02/24/2024</td>
+                            <td><span class="status pending"></span> Pending</td>
+                        </tr>
+                        <tr data-href="{% url 'student_evaluation_form' %}">
+                            <td>Event No. 1</td>
+                            <td>02/24/2024</td>
+                            <td><span class="status waiting"></span> Waiting for Response</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get all table rows in the table body
+            const rows = document.querySelectorAll("tbody tr");
+
+            rows.forEach(row => {
+                // Add a click event listener to each row
+                row.addEventListener("click", function() {
+                    // Get the URL from the data-href attribute
+                    const href = this.getAttribute("data-href");
+                    
+                    // Redirect to the URL
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
