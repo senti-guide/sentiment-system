@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senti Guide</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
+    <link rel="stylesheet" href="{% static 'about.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <img src="{% static 'SG_LOGO_WHITE.png' %}" alt="Senti Guide Logo">
+                <h2>Senti Guide</h2>
+            </div>
+            <ul class="nav-links">
+                <li><a href="{% url 'student_home' %}" class="active"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="{% url 'student_evaluation' %}"><i class="fas fa-clipboard-list"></i> Evaluation</a></li>
+                <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
+            </ul>
+            <a href="{% url 'login' %}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="welcome-section">
+                <h1>What is Senti Guide?</h1>
+            </div>
+            <div class="about-section">
+                <div class="about-box">
+                    <p>Welcome to Senti Guide – a platform developed for the Supreme Student Government to collect and understand student feedback on our campus events. <br><br>
+
+                        At Senti Guide, we believe that every student’s opinion matters. This platform allows students to freely express their thoughts and share valuable insights on various school events, helping us capture the overall sentiment and experiences of our campus community. By analyzing feedback, we can recognize what resonates with students and identify areas for improvement, creating a stronger connection between students and event organizers.
+                        <br><br>
+                        Through Senti Guide, the SSG aims to foster an open feedback culture where your voice is a vital part of our planning process. Together, we’re building events that reflect the interests, needs, and values of BISU-Clarin, making each event more meaningful and impactful. Your feedback shapes the future of our campus experiences, and we thank you for being a part of this journey.
+                        </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

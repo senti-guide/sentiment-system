@@ -75,6 +75,14 @@ def student_home_view(request):
 def student_evaluation_view(request):
     return render(request, 'student_evaluation.html')
 
+@login_required
+def about_view(request):
+    return render(request, 'about.html')
+
+@login_required
+def student_evaluation_form_view(request):
+    return render(request, 'student_evaluation_form.html')
+
 def is_admin(user):
     return user.is_superuser or user.is_staff
 
