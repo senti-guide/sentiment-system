@@ -67,7 +67,7 @@ TEMPLATES = [
             ],
         },
     },
-]
+]   
 
 WSGI_APPLICATION = 'sentiment.wsgi.application'
 
@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'sentiment.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',  # Use PostgreSQL
+        'NAME': 'senti_guide_db',                   # Your PostgreSQL database name
+        'USER': 'senti_user_',                       # Your PostgreSQL username
+        'PASSWORD': 'senti_user000',                # The password you set for senti_user
+        'HOST': 'localhost',                        # localhost for local development
+        'PORT': '5432',                             # Default PostgreSQL port
     }
 }
 
