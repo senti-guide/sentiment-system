@@ -67,6 +67,8 @@ def register_view(request):
 
     return render(request, 'register.html', {'form': form})
 
+#STUDENT
+
 @login_required
 def student_home_view(request):
     return render(request, 'student_home.html')
@@ -86,9 +88,15 @@ def student_evaluation_form_view(request):
 def is_admin(user):
     return user.is_superuser or user.is_staff
 
+#ADMIN
+
 @user_passes_test(is_admin)
 def admin_dashboard_view(request):
     return render(request, 'admin_dashboard.html')
+
+@user_passes_test(is_admin)
+def admin_about_view(request):
+    return render(request, 'admin_about.html')
 
 def logout_view(request):
     logout(request)
