@@ -4,6 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from .forms import LoginForm, StudentRegistrationForm  # Import the registration form
+#new import for admin evaluation
+from django.shortcuts import render, redirect
+from .models import Event, Evaluation, SentimentAnalysis
 
 def welcome_view(request):
     return render(request, 'welcome.html')
@@ -97,6 +100,63 @@ def admin_dashboard_view(request):
 @user_passes_test(is_admin)
 def admin_about_view(request):
     return render(request, 'admin_about.html')
+
+@user_passes_test(is_admin)
+def admin_evaluation_view(request):
+    if request.method == 'POST':
+        # Handle event creation
+        title = request.POST.get('event_title')
+        date = request.POST.get('event_date')
+
+        if title and date:
+            Event.objects.create(title=title, date=date)
+            # Redirect to prevent duplicate form submissions on refresh
+            return redirect('admin_evaluation')  # Replace with your URL name if different
+
+    # Fetch all events
+    events = Event.objects.all()
+
+    # Data for each event
+    event_data = []
+
+    for event in events:
+        # Fetch evaluations related to this event
+        evaluations = Evaluation.objects.filter(event=event)
+
+        # Count total responses (evaluations)
+        total_responses = evaluations.count()
+
+        # Get sentiment analysis for each evaluation
+        sentiments = SentimentAnalysis.objects.filter(evaluation__in=evaluations)
+
+        # Calculate sentiment distribution percentages
+        if total_responses > 0:
+            positive_count = sentiments.filter(positive_percentage__gt=0).count()
+            neutral_count = sentiments.filter(neutral_percentage__gt=0).count()
+            negative_count = sentiments.filter(negative_percentage__gt=0).count()
+
+            positive_percentage = (positive_count / total_responses) * 100
+            neutral_percentage = (neutral_count / total_responses) * 100
+            negative_percentage = (negative_count / total_responses) * 100
+        else:
+            positive_percentage = neutral_percentage = negative_percentage = 0.00
+
+        # Add event data to the list
+        event_data.append({
+            'title': event.title,
+            'date': event.date,
+            'total_responses': total_responses,
+            'positive_percentage': positive_percentage,
+            'neutral_percentage': neutral_percentage,
+            'negative_percentage': negative_percentage,
+        })
+
+    # Pass the data to the template
+    context = {
+        'event_data': event_data,
+    }
+
+    return render(request, 'admin_evaluation.html', context)
 
 def logout_view(request):
     logout(request)

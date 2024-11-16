@@ -11,6 +11,7 @@ urlpatterns = [
     path('about/', views.about_view, name='about'),
     path('student_evaluation_form/', views.student_evaluation_form_view, name='student_evaluation_form'),
     path('admin_dashboard/', views.admin_dashboard_view, name='admin_dashboard'),
+    path('admin_evaluation/', views.admin_evaluation_view, name='admin_evaluation'),
     path('admin_about/', views.admin_about_view, name='admin_about'),
     path('logout/', views.logout_view, name='logout'),
 ]

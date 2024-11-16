@@ -57,6 +57,14 @@
             <div class="links">
                 <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
             </div>
+
+            <!-- Continue with Google button -->
+            <div class="google-login">
+                <button class="google-button" onclick="window.location.href='#'">
+                    <img src="{% static 'google-icon.png' %}" alt="Google Icon" class="google-icon">
+                    Continue with Google
+                </button>
+            </div>
         </div>
     </div>
 </body>
