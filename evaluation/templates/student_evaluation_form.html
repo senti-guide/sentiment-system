@@ -10,17 +10,40 @@
 </head>
 <body>
   <div class="container">
-    <h1>Event Evaluation Form</h1>
-    <p class="description">Please evaluate the activity using the 5-point scale provided below. Simply select the number that best represents your assessment. Your honest feedback is invaluable in enhancing our future activities. The rating scale ranges from 1 (lowest) to 5 (highest).</p>
+    <h1>"Event Title"</h1>
+    <h2>Evaluation Form</h2>
     
     <form action="#" method="POST">
-      <!-- Course & Year -->
-      <div class="form-group">
-        <label for="courseYear">Course & Year</label>
-        <input type="text" id="courseYear" name="courseYear" required placeholder="e.g., BSIT 2nd Year">
+       <!-- Dropdown/Radio Question 1 for Program -->
+       <div class="form-group">
+        <label for="program">Program</label>
+        <select id="program" name="program" required>
+          <option value="" disabled selected>Select your Program</option>
+          <option value="BSCS">BSCS</option>
+          <option value="BSHM">BSHM</option>
+          <option value="BSES">BSES</option>
+          <option value="BEED">BEED</option>
+          <option value="BTLED-HE">BTLED-HE</option>
+          <option value="BSED-MATH">BSED-MATH</option>
+        </select>
       </div>
+    
+           <!-- Dropdown/Radio Question 2 for Year-->
+      <div class="form-group">
+        <label for="yearlevel">Year Level</label>
+        <select id="yearlevel" name="yearlevel" required>
+          <option value="" disabled selected>Select your Year Level</option>
+          <option value="1">1st Year</option>
+          <option value="2">2nd Year</option>
+          <option value="3">3rd Year</option>
+          <option value="4">4th Year</option>
+          <option value="5">5th Year and Above</option>
+        </select>
+      </div>
+
+      <p class="description">Please evaluate the activity using the 5-point scale provided below. Simply select the number that best represents your assessment. Your honest feedback is invaluable in enhancing our future activities. The rating scale ranges from <b> 1 (lowest) to 5 (highest). </b></p>
       
-<!-- Likert Scale Questions (1-5) -->
+<!-- Likert Scale Questions (1-9) -->
 <div class="form-group">
     <label for="q1">1. Timely and effective information dissemination and promotion of the activity.</label>
     <div class="likert">
@@ -120,9 +143,9 @@
     </div>
 </div>
 
-      <!-- Dropdown/Radio Question -->
+      <!-- Dropdown/Radio Question 3 for Future Attendance-->
       <div class="form-group">
-        <label for="futureAttendance">Would you attend these activities in the future?</label>
+        <label for="futureAttendance">Would you be willing to attend to these kind of activities in the future?</label>
         <select id="futureAttendance" name="futureAttendance" required>
           <option value="" disabled selected>Select an option</option>
           <option value="Yes">Yes</option>

@@ -31,3 +31,5 @@ class SentimentAnalysis(models.Model):
 
     def __str__(self):
         return f"Sentiment Analysis for {self.evaluation.event.title}"
+    
+    
