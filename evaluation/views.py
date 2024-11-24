@@ -78,15 +78,88 @@ def student_home_view(request):
 
 @login_required
 def student_evaluation_view(request):
-    return render(request, 'student_evaluation.html')
+    # Fetch all events
+    events = Event.objects.all()
+
+    # Add evaluation status for the logged-in user to each event
+    for event in events:
+        evaluation = Evaluation.objects.filter(event=event, student=request.user).first()
+        event.evaluation_status = (
+            "submitted" if evaluation and evaluation.is_submitted else
+            "pending" if evaluation else
+            "waiting"
+        )
+
+    return render(request, 'student_evaluation.html', {'events': events})
+
 
 @login_required
 def about_view(request):
     return render(request, 'about.html')
 
+from django.shortcuts import get_object_or_404
+from .models import Event
+
 @login_required
-def student_evaluation_form_view(request):
-    return render(request, 'student_evaluation_form.html')
+def student_evaluation_form_view(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    return render(request, 'student_evaluation_form.html', {'event_id': event_id, 'event_title': event.title})
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Evaluation, Event
+from .sentiment_model import predict_sentiment
+
+@login_required
+def submit_evaluation_view(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+
+    # Check if the evaluation already exists for the logged-in user and event
+    evaluation = Evaluation.objects.filter(event=event, student=request.user).first()
+    
+    # If an evaluation exists and it's already submitted, redirect to prevent resubmission
+    if evaluation and evaluation.is_submitted:
+        return redirect('student_evaluation')  # Redirect to another page if already submitted
+
+    if request.method == 'POST':
+        # Create a new evaluation if none exists
+        if not evaluation:
+            evaluation = Evaluation.objects.create(
+                event=event,
+                student=request.user,  # Automatically link to the logged-in user
+            )
+        
+        # Update the evaluation fields
+        evaluation.program = request.POST.get('program', '')
+        evaluation.year_level = request.POST.get('year_level', '')
+        evaluation.q1 = request.POST.get('q1', '')
+        evaluation.q2 = request.POST.get('q2', '')
+        evaluation.q3 = request.POST.get('q3', '')
+        evaluation.q4 = request.POST.get('q4', '')
+        evaluation.q5 = request.POST.get('q5', '')
+        evaluation.q6 = request.POST.get('q6', '')
+        evaluation.q7 = request.POST.get('q7', '')
+        evaluation.q8 = request.POST.get('q8', '')
+        evaluation.q9 = request.POST.get('q9', '')
+        evaluation.future_attendance = request.POST.get('future_attendance', '')
+        evaluation.comments = request.POST.get('comments', '')
+        evaluation.suggestions = request.POST.get('suggestions', '')
+
+        # Sentiment Analysis: Process comments and get sentiment label
+        if evaluation.comments:  # Check if comments are not empty
+            evaluation.sentiment_label = predict_sentiment(evaluation.comments)
+        
+        # Mark the evaluation as submitted
+        evaluation.is_submitted = True
+        
+        # Save the updated evaluation
+        evaluation.save()
+        
+        return redirect('student_evaluation')  # Redirect after submission
+    
+    # Render the evaluation form for GET requests
+    return render(request, 'submit_evaluation.html', {'event': event})
+
 
 def is_admin(user):
     return user.is_superuser or user.is_staff
@@ -126,23 +199,33 @@ def admin_evaluation_view(request):
         # Count total responses (evaluations)
         total_responses = evaluations.count()
 
-        # Get sentiment analysis for each evaluation
-        sentiments = SentimentAnalysis.objects.filter(evaluation__in=evaluations)
+        # Initialize counts for each sentiment type
+        positive_count = 0
+        neutral_count = 0
+        negative_count = 0
+
+        # Loop through evaluations and count sentiments
+        for evaluation in evaluations:
+            sentiment = evaluation.sentiment_label  # Using the sentiment_label directly
+
+            if sentiment == 'Positive':
+                positive_count += 1
+            elif sentiment == 'Neutral':
+                neutral_count += 1
+            elif sentiment == 'Negative':
+                negative_count += 1
 
         # Calculate sentiment distribution percentages
         if total_responses > 0:
-            positive_count = sentiments.filter(positive_percentage__gt=0).count()
-            neutral_count = sentiments.filter(neutral_percentage__gt=0).count()
-            negative_count = sentiments.filter(negative_percentage__gt=0).count()
-
-            positive_percentage = (positive_count / total_responses) * 100
-            neutral_percentage = (neutral_count / total_responses) * 100
-            negative_percentage = (negative_count / total_responses) * 100
+            positive_percentage = round((positive_count / total_responses) * 100, 2)
+            neutral_percentage = round((neutral_count / total_responses) * 100, 2)
+            negative_percentage = round((negative_count / total_responses) * 100, 2)
         else:
             positive_percentage = neutral_percentage = negative_percentage = 0.00
 
         # Add event data to the list
         event_data.append({
+            'id': event.id,  # Add the event ID here
             'title': event.title,
             'date': event.date,
             'total_responses': total_responses,
@@ -157,6 +240,74 @@ def admin_evaluation_view(request):
     }
 
     return render(request, 'admin_evaluation.html', context)
+
+
+
+
+from django.shortcuts import get_object_or_404, render
+from django.db.models import Avg
+from .models import Event, Evaluation
+
+@user_passes_test(is_admin)
+def admin_results_view(request, event_id):
+    # Fetch the event
+    event = get_object_or_404(Event, pk=event_id)
+
+    # Get all evaluations for the event
+    evaluations = Evaluation.objects.filter(event=event, is_submitted=True)
+
+    # Data for the Comments table
+    comments_data = [
+        {"comment": evaluation.comments, "label": evaluation.sentiment_label or "No label"}  # Include sentiment_label
+        for evaluation in evaluations if evaluation.comments
+    ]
+
+    # Calculate average scores for each question (Q1 to Q9)
+    question_data = {
+        f"q{i}": evaluations.aggregate(Avg(f"q{i}"))[f"q{i}__avg"] or 0 for i in range(1, 10)
+    }
+
+    # Data for Suggestions table
+    suggestions = [evaluation.suggestions for evaluation in evaluations if evaluation.suggestions]
+
+    # Data for Future Attendance (Pie chart)
+    future_attendance_labels = ["Yes", "No", "Maybe"]
+    future_attendance_counts = [
+        evaluations.filter(future_attendance=label).count() for label in future_attendance_labels
+    ]
+
+    # Data for Program Distribution (Pie chart)
+    program_data = evaluations.values("program").annotate(count=Avg("id"))
+    program_labels = [entry["program"] for entry in program_data]
+    program_counts = [entry["count"] for entry in program_data]
+
+    # Data for Year Level Distribution (Pie chart)
+    year_level_data = evaluations.values("year_level").annotate(count=Avg("id"))
+    year_level_labels = [entry["year_level"] for entry in year_level_data]
+    year_level_counts = [entry["count"] for entry in year_level_data]
+
+    # Prepare context for rendering
+    context = {
+        "event": event,
+        "comments_data": comments_data,
+        "question_data": question_data,  # For bar charts (Questions 1-9)
+        "suggestions": suggestions,
+
+        # Future Attendance Pie Chart
+        "future_attendance_labels": future_attendance_labels,
+        "future_attendance_counts": future_attendance_counts,
+
+        # Program Distribution Pie Chart
+        "program_labels": program_labels,
+        "program_counts": program_counts,
+
+        # Year Level Distribution Pie Chart
+        "year_level_labels": year_level_labels,
+        "year_level_counts": year_level_counts,
+    }
+
+    return render(request, "admin_results.html", context)
+
 
 def logout_view(request):
     logout(request)

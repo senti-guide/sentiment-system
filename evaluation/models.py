@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User  # Import the User model
 
 # Event model
 class Event(models.Model):
@@ -11,16 +12,30 @@ class Event(models.Model):
 # Evaluation model
 class Evaluation(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='evaluations')
-    student_email = models.EmailField()
-    course_year = models.CharField(max_length=100)
-    likert_answers = models.JSONField()  # To store 9 Likert scale answers as a dictionary
-    choice_question = models.CharField(max_length=10, choices=[('Yes', 'Yes'), ('Maybe', 'Maybe'), ('No', 'No')])
-    comments = models.TextField(blank=True, null=True)
-    suggestions = models.TextField(blank=True, null=True)
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='evaluations')  # Link to User (student)
+    program = models.CharField(max_length=100, null=True, blank=True) # For program (BSCS, BSHM, etc.)
+    year_level = models.CharField(max_length=100, default="1st Year")   # Required # For year level (1st Year, 2nd Year, etc.)
+    q1 = models.PositiveIntegerField(default=1)  # Temporarily set default
+    q2 = models.PositiveIntegerField(default=1)  # Temporarily set default
+    q3 = models.PositiveIntegerField(default=1)  # Temporarily set default
+    q4 = models.PositiveIntegerField(default=1)  # Temporarily set default
+    q5 = models.PositiveIntegerField(default=1)  # Temporarily set default
+    q6 = models.PositiveIntegerField(default=1)  # Temporarily set default
+    q7 = models.PositiveIntegerField(default=1)  # Temporarily set default
+    q8 = models.PositiveIntegerField(default=1)  # Temporarily set default
+    q9 = models.PositiveIntegerField(default=1)  # Temporarily set default
+    future_attendance = models.CharField(max_length=10, default="Yes")
+    comments = models.TextField(null=True, blank=True)  # Optional feedback
+    sentiment_label = models.CharField(max_length=20, null=True, blank=True)  # Sentiment label for the comment
+    suggestions = models.TextField(null=True, blank=True)  # Optional suggestions
     is_submitted = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('event', 'student')  # Ensure one evaluation per user per event
+
     def __str__(self):
-        return f"Evaluation for {self.event.title} by {self.student_email}"
+        return f"Evaluation for {self.event.title} by {self.student.username}"
+
 
 # Sentiment model
 class SentimentAnalysis(models.Model):
@@ -31,5 +46,7 @@ class SentimentAnalysis(models.Model):
 
     def __str__(self):
         return f"Sentiment Analysis for {self.evaluation.event.title}"
+    
+
     
     

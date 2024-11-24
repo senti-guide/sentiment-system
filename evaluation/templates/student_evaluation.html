@@ -31,28 +31,30 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Event Title</th>
+                            <th>Event Title</th> 
                             <th>Date</th>
                             <th>Evaluation Status</th>
                         </tr>
                     </thead>
-                    <tbody> 
-                        <tr data-href="{% url 'student_evaluation_form' %}">
-                            <td>Event No. 1</td>
-                            <td>02/24/2024</td>
-                            <td><span class="status submitted"></span> Submitted</td>
+                    <tbody>
+                        {% for event in events %}
+                        <tr data-href="{% url 'student_evaluation_form' event.id %}">
+                            <td>{{ event.title }}</td>
+                            <td>{{ event.date|date:"m/d/Y" }}</td>
+                    
+                            <!-- Evaluation Status -->
+                            <td>
+                                {% if event.evaluation_status == "submitted" %}
+                                    <span class="status submitted"></span> Submitted
+                                {% elif event.evaluation_status == "pending" %}
+                                    <span class="status pending"></span> Pending
+                                {% else %}
+                                    <span class="status waiting"></span> Waiting for Response
+                                {% endif %}
+                            </td>
                         </tr>
-                        <tr data-href="{% url 'student_evaluation_form' %}">
-                            <td>Event No. 1</td>
-                            <td>02/24/2024</td>
-                            <td><span class="status pending"></span> Pending</td>
-                        </tr>
-                        <tr data-href="{% url 'student_evaluation_form' %}">
-                            <td>Event No. 1</td>
-                            <td>02/24/2024</td>
-                            <td><span class="status waiting"></span> Waiting for Response</td>
-                        </tr>
-                    </tbody>
+                        {% endfor %}
+                    </tbody>                    
                 </table>
             </div>
         </div>

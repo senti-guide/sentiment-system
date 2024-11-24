@@ -60,21 +60,42 @@
                     </thead>
                     <tbody>
                         {% for event in event_data %}
-                            <tr>
+                            <!-- Add a data-href attribute to each row with the link to the event's results -->
+                            <tr data-href="{% url 'admin_results' event_id=event.id %}">
                                 <td>{{ event.title }}</td>
                                 <td>{{ event.date }}</td>
                                 <td>{{ event.total_responses }}</td>
                                 <td>
-                                    <span class="status positive">😊 {{ event.positive_percentage }}%</span>
-                                    <span class="status neutral">😐 {{ event.neutral_percentage }}%</span>
-                                    <span class="status negative">😞 {{ event.negative_percentage }}%</span>
+                                    <span class="status positive">😊 {{ event.positive_percentage|floatformat:2 }}%</span>
+                                    <span class="status neutral">😐 {{ event.neutral_percentage|floatformat:2 }}%</span>
+                                    <span class="status negative">😞 {{ event.negative_percentage|floatformat:2 }}%</span>                                                                      
                                 </td>
                             </tr>
                         {% endfor %}
-                    </tbody>
+                    </tbody>                    
                 </table>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get all table rows in the table body
+            const rows = document.querySelectorAll("tbody tr");
+
+            rows.forEach(row => {
+                // Add a click event listener to each row
+                row.addEventListener("click", function() {
+                    // Get the URL from the data-href attribute
+                    const href = this.getAttribute("data-href");
+                    
+                    // Redirect to the URL
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

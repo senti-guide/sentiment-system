@@ -1,0 +1,174 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senti Guide - Event Evaluation Results</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
+    <link rel="stylesheet" href="{% static 'admin_results.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
+</head>
+<body>
+    <div class="container">
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1>{{ event.title }} Evaluation Results</h1>
+
+            <!-- Comments Table -->
+            <h3>Comments</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Comment</th>
+                        <th>Label</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comment in comments_data %}
+                        <tr>
+                            <td>{{ comment.comment }}</td>
+                            <td>{{ comment.label }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Pie Charts Section -->
+            <h3>Pie Charts</h3>
+            <div id="charts-container">
+                <div id="charts-container" style="display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 20px;">
+                    <div style="flex: 1; max-width: 30%; text-align: center; margin: 10px;">
+                        <h4>Program Distribution</h4>
+                        <canvas id="program-distribution-chart"></canvas>
+                    </div>
+                    <div style="flex: 1; max-width: 30%; text-align: center; margin: 10px;">
+                        <h4>Year Level Distribution</h4>
+                        <canvas id="year-level-distribution-chart"></canvas>
+                    </div>
+                    <div style="flex: 1; max-width: 30%; text-align: center; margin: 10px;">
+                        <h4>Future Attendance</h4>
+                        <canvas id="future-attendance-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bar Chart Section -->
+            <h3>Question-wise Average Scores</h3>
+            <div>
+                <canvas id="question-bar-chart"></canvas>
+            </div>
+
+            <!-- Suggestions Table -->
+            <h3>Suggestions</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Suggestions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for suggestion in suggestions %}
+                        <tr>
+                            <td>{{ suggestion }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Future Attendance Pie Chart
+        const futureAttendanceChart = new Chart(document.getElementById("future-attendance-chart"), {
+            type: 'pie',
+            data: {
+                labels: {{ future_attendance_labels|safe }},
+                datasets: [{
+                    data: {{ future_attendance_counts|safe }},
+                    backgroundColor: ['#4caf50', '#f44336', '#ffeb3b'], // Colors for Yes, No, Maybe
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Future Attendance' }
+                }
+            }
+        });
+
+        // Program Distribution Pie Chart
+        const programDistributionChart = new Chart(document.getElementById("program-distribution-chart"), {
+            type: 'pie',
+            data: {
+                labels: {{ program_labels|safe }},
+                datasets: [{
+                    data: {{ program_counts|safe }},
+                    backgroundColor: ['#4caf50', '#ffeb3b', '#f44336', '#2196f3', '#9c27b0'], // Add more colors as needed
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Program Distribution' }
+                }
+            }
+        });
+
+        // Year Level Distribution Pie Chart
+        const yearLevelDistributionChart = new Chart(document.getElementById("year-level-distribution-chart"), {
+            type: 'pie',
+            data: {
+                labels: {{ year_level_labels|safe }},
+                datasets: [{
+                    data: {{ year_level_counts|safe }},
+                    backgroundColor: ['#2196f3', '#4caf50', '#ffeb3b', '#f44336'], // Add more colors as needed
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Year Level Distribution' }
+                }
+            }
+        });
+
+        // Question-wise Average Bar Chart
+        const questionBarChart = new Chart(document.getElementById("question-bar-chart"), {
+            type: 'bar',
+            data: {
+                labels: ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9"],  // Question labels
+                datasets: [{
+                    label: 'Average Score',
+                    data: [
+                        {{ question_data.q1 }},
+                        {{ question_data.q2 }},
+                        {{ question_data.q3 }},
+                        {{ question_data.q4 }},
+                        {{ question_data.q5 }},
+                        {{ question_data.q6 }},
+                        {{ question_data.q7 }},
+                        {{ question_data.q8 }},
+                        {{ question_data.q9 }}
+                    ],
+                    backgroundColor: '#2196f3'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Question-wise Average Scores' }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Questions' } },
+                    y: { title: { display: true, text: 'Average Score' }, beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
