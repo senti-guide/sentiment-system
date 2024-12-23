@@ -10,6 +10,12 @@
 </head>
 <body>
   <div class="container">
+            
+    <!-- Back Button -->
+    <div class="back-btn-container">
+    <a href="{% url 'student_evaluation' %}" class="back-btn">← Back</a>
+    </div>
+
     <h1>{{ event_title }}</h1> <!-- Dynamic Event Title -->
     <h2>Evaluation Form</h2>                                        
 
@@ -17,32 +23,6 @@
       {% csrf_token %}
       <!-- Hidden input for event title -->
       <input type="hidden" name="event_title" value="{{ event_title }}">
-       <!-- Dropdown/Radio Question 1 for Program -->
-       <div class="form-group">
-        <label for="program">Program</label>
-        <select id="program" name="program" required>
-          <option value="" disabled selected>Select your Program</option>
-          <option value="BSCS">BSCS</option>
-          <option value="BSHM">BSHM</option>
-          <option value="BSES">BSES</option>
-          <option value="BEED">BEED</option>
-          <option value="BTLED-HE">BTLED-HE</option>
-          <option value="BSED-MATH">BSED-MATH</option>
-        </select>
-      </div>
-    
-           <!-- Dropdown/Radio Question 2 for Year-->
-      <div class="form-group">
-        <label for="year_level">Year Level</label>
-        <select id="year_level" name="year_level" required>
-          <option value="" disabled selected>Select your Year Level</option>
-          <option value="1">1st Year</option>
-          <option value="2">2nd Year</option>
-          <option value="3">3rd Year</option>
-          <option value="4">4th Year</option>
-          <option value="5">5th Year and Above</option>
-        </select>
-      </div>
 
       <p class="description">Please evaluate the activity using the 5-point scale provided below. Simply select the number that best represents your assessment. Your honest feedback is invaluable in enhancing our future activities. The rating scale ranges from <b> 1 (lowest) to 5 (highest). </b></p>
       

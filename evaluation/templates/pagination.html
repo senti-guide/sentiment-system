@@ -1,0 +1,29 @@
+<!-- Comments Pagination -->
+{% if comments_page.has_previous %}
+    <a href="javascript:void(0);" class="pagination-link" data-page="1">First</a>
+{% endif %}
+{% if comments_page.has_previous %}
+    <a href="javascript:void(0);" class="pagination-link" data-page="{{ comments_page.previous_page_number }}">Previous</a>
+{% endif %}
+<span>Page {{ comments_page.number }} of {{ comments_page.paginator.num_pages }}</span>
+{% if comments_page.has_next %}
+    <a href="javascript:void(0);" class="pagination-link" data-page="{{ comments_page.next_page_number }}">Next</a>
+{% endif %}
+{% if comments_page.has_next %}
+    <a href="javascript:void(0);" class="pagination-link" data-page="{{ comments_page.paginator.num_pages }}">Last</a>
+{% endif %}
+
+<!-- Suggestions Pagination (optional) -->
+{% if suggestions_page.has_previous %}
+    <a href="javascript:void(0);" class="pagination-link" data-page="1">First</a>
+{% endif %}
+{% if suggestions_page.has_previous %}
+    <a href="javascript:void(0);" class="pagination-link" data-page="{{ suggestions_page.previous_page_number }}">Previous</a>
+{% endif %}
+<span>Page {{ suggestions_page.number }} of {{ suggestions_page.paginator.num_pages }}</span>
+{% if suggestions_page.has_next %}
+    <a href="javascript:void(0);" class="pagination-link" data-page="{{ suggestions_page.next_page_number }}">Next</a>
+{% endif %}
+{% if suggestions_page.has_next %}
+    <a href="javascript:void(0);" class="pagination-link" data-page="{{ suggestions_page.paginator.num_pages }}">Last</a>
+{% endif %}

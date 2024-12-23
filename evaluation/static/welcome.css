@@ -26,7 +26,7 @@ body {
 
 .title {
     font-size: 2.5rem;
-    color: #17B3FD;
+    color: #17B3FD;                          
     margin-bottom: 10px;
 }
 
@@ -54,4 +54,8 @@ body {
 
 .get-started:hover {
     background-color: #007ACC;
+}
+
+a {
+    text-decoration: none;
 }

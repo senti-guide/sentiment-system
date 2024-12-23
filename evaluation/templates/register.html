@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -60,11 +61,13 @@
 
             <!-- Continue with Google button -->
             <div class="google-login">
-                <button class="google-button" onclick="window.location.href='#'">
-                    <img src="{% static 'google-icon.png' %}" alt="Google Icon" class="google-icon">
-                    Continue with Google
-                </button>
-            </div>
+                <a href="{% provider_login_url 'google' %}">
+                    <button class="google-button">
+                        <img src="{% static 'google-icon.png' %}" alt="Google Icon" class="google-icon">
+                        Continue with Google
+                    </button>
+                </a>
+            </div>            
         </div>
     </div>
 </body>

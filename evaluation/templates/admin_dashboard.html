@@ -6,38 +6,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senti Guide</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
-    <link rel="stylesheet" href="{% static 'home.css' %}">
+    <link rel="stylesheet" href="{% static 'admin_dashboard.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="logo">
-                <img src="{% static 'SG_LOGO_WHITE.png' %}" alt="Senti Guide Logo">
-                <h2>Senti Guide</h2>
-            </div>
-            <ul class="nav-links">
-                <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="{% url 'admin_evaluation' %}"><i class="fas fa-clipboard-list"></i> Evaluation</a></li>
-                <li><a href="{% url 'admin_about' %}"><i class="fas fa-info-circle"></i> About</a></li>
-            </ul>
-            <a href="{% url 'login' %}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </nav>
+        <!-- Include Navbar -->
+        {% include 'admin_navbar.html' %}
         
         <!-- Main Content -->
         <div class="main-content">
-            <div class="welcome-section">
-                <h1>Hola, Admin!</h1>
-                <p>Welcome to <span class="highlight">Senti Guide!</span> Where we bring student voices to the heart of every event.</p>
+            <div class="ranking-section">
+                <!-- Positive Rankings -->
+                <!-- Positive Rankings -->
+                <div class="positive-ranks">
+                    <h3>Top 5 Events with Positive Comments</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event Title</th>
+                                <th>Positive Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in positive_events %}
+                            <tr>
+                                <td>{{ event.title }}</td>
+                                <td>{{ event.positive_percentage }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Negative Rankings -->
+                <div class="negative-ranks">
+                    <h3>Top 5 Events with Negative Comments</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event Title</th>
+                                <th>Negative Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in negative_events %}
+                            <tr>
+                                <td>{{ event.title }}</td>
+                                <td>{{ event.negative_percentage }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="reminders-section">
-                <div class="reminder-box">
-                    <h2>Reminders</h2>
-                </div>
-                <div class="extra-box">
-                    <!-- Placeholder for additional content or widgets -->
-                </div>
+
+            <!-- Word Cloud Section -->
+            <div class="word-cloud">
+                <h3>Word Cloud</h3>
+                <img src="{% url 'wordcloud_image' %}" alt="Word Cloud">
             </div>
         </div>
     </div>

@@ -1,0 +1,18 @@
+<table>
+    <thead>
+        <tr>
+            <th>Suggestion</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for suggestion in suggestions_page.object_list %}
+            <tr>
+                <td>{{ suggestion }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td>No suggestions available.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -11,19 +11,8 @@
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="logo">
-                <img src="{% static 'SG_LOGO_WHITE.png' %}" alt="Senti Guide Logo">
-                <h2>Senti Guide</h2>
-            </div>
-            <ul class="nav-links">
-                <li><a href="{% url 'admin_dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="{% url 'admin_evaluation' %}"><i class="fas fa-clipboard-list"></i> Evaluation</a></li>
-                <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
-            </ul>
-            <a href="{% url 'login' %}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </nav>
+        <!-- Include Navbar -->
+        {% include 'admin_navbar.html' %}
         
         <!-- Main Content -->
         <div class="main-content">

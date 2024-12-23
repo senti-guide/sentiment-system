@@ -12,25 +12,15 @@
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="logo">
-                <img src="{% static 'SG_LOGO_WHITE.png' %}" alt="Senti Guide Logo">
-                <h2>Senti Guide</h2>
-            </div>
-            <ul class="nav-links">
-                <li><a href="{% url 'admin_dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="#"><i class="fas fa-clipboard-list"></i> Evaluation</a></li>
-                <li><a href="{% url 'admin_about' %}"><i class="fas fa-info-circle"></i> About</a></li>
-            </ul>
-            <a href="{% url 'login' %}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </nav>
+        <!-- Include Navbar -->
+        {% include 'admin_navbar.html' %}
         
         <!-- Main Content -->
         <div class="main-content">
-            <h1>Evaluation Form Management</h1>
 
             <!-- Create New Evaluation Form -->
-            <div class="form-container">
+            <div id="evaluationFormContainer" class="form-container" style="display: none;">
+                <h1>Evaluation Form Management</h1>
                 <h3>Create New Evaluation Form</h3>
                 <form method="POST" action="{% url 'admin_evaluation' %}">
                     {% csrf_token %}
@@ -46,8 +36,12 @@
                 </form>                
             </div>
 
+            <!-- Floating Button to Toggle Form -->
+            <button id="addEvaluationFormBtn" class="floating-btn">
+                <i class="fa-solid fa-circle-plus fa-rotate-90"></i>
+            </button>
+
             <!-- Events Table -->
-            <h3>Events</h3>
             <div class="table-container">
                 <table>
                     <thead>
@@ -60,15 +54,14 @@
                     </thead>
                     <tbody>
                         {% for event in event_data %}
-                            <!-- Add a data-href attribute to each row with the link to the event's results -->
                             <tr data-href="{% url 'admin_results' event_id=event.id %}">
                                 <td>{{ event.title }}</td>
                                 <td>{{ event.date }}</td>
                                 <td>{{ event.total_responses }}</td>
                                 <td>
-                                    <span class="status positive">😊 {{ event.positive_percentage|floatformat:2 }}%</span>
-                                    <span class="status neutral">😐 {{ event.neutral_percentage|floatformat:2 }}%</span>
-                                    <span class="status negative">😞 {{ event.negative_percentage|floatformat:2 }}%</span>                                                                      
+                                    <span class="status positive"><i class="fa-solid fa-face-smile"></i> {{ event.positive_percentage|floatformat:2 }}%</span>
+                                    <span class="status neutral"><i class="fa-solid fa-face-meh"></i> {{ event.neutral_percentage|floatformat:2 }}%</span>
+                                    <span class="status negative"><i class="fa-solid fa-face-frown"></i> {{ event.negative_percentage|floatformat:2 }}%</span>                                                                      
                                 </td>
                             </tr>
                         {% endfor %}
@@ -94,6 +87,18 @@
                         window.location.href = href;
                     }
                 });
+            });
+
+            const formContainer = document.getElementById("evaluationFormContainer");
+            const button = document.getElementById("addEvaluationFormBtn");
+
+            // Toggle visibility of the form when the button is clicked
+            button.addEventListener("click", function() {
+                if (formContainer.style.display === "none" || formContainer.style.display === "") {
+                    formContainer.style.display = "block";
+                } else {
+                    formContainer.style.display = "none";
+                }
             });
         });
     </script>

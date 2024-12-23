@@ -4,42 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Senti Guide</title>
+    <title>Senti Guide - Profile</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
     <link rel="stylesheet" href="{% static 'home.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <!-- Unified Flex Container -->
     <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="logo">
-                <img src="{% static 'SG_LOGO_WHITE.png' %}" alt="Senti Guide Logo">
-                <h2>Senti Guide</h2>
-            </div>
-            <ul class="nav-links">
-                <li><a href="#" class="active"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="{% url 'student_evaluation' %}"><i class="fas fa-clipboard-list"></i> Evaluation</a></li>
-                <li><a href="{% url 'about' %}"><i class="fas fa-info-circle"></i> About</a></li>
-            </ul>
-            <a href="{% url 'login' %}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </nav>
+        <!-- Include Navbar -->
+        {% include 'student_navbar.html' %}
         
         <!-- Main Content -->
-        <div class="main-content">
-            <div class="welcome-section">
-                <h1>Hola, BISUans!</h1>
-                <p>Welcome to <span class="highlight">Senti Guide!</span> Where your voices are brought to the heart of every event.</p>
+        <div class="profile-container">
+            <!-- Banner section -->
+            <div class="banner"></div>
+          
+            <!-- Profile icon -->
+            <div class="profile-icon"><img src="{% static 'profile-icon.png' %}" alt="Google Icon" class="google-icon"></div>
+          
+            <!-- Profile details -->
+            <div class="profile-details">
+              <h1 class="profile-name">{{ user.email }}</h1>
+              <p class="profile-info">
+                {% if user.profile.program and user.profile.year_level %}
+                  {{ user.profile.program }} • {{ user.profile.year_level }}
+                {% else %}
+                  Program • Year Level
+                {% endif %}
+              </p>
             </div>
-            <div class="reminders-section">
-                <div class="reminder-box">
-                    <h2>Reminders</h2>
-                </div>
-                <div class="extra-box">
-                    <!-- Placeholder for additional content or widgets -->
-                </div>
+          
+            <!-- Profile section -->
+            <div class="profile-setup">
+                <form class="profile-form" method="POST" action="{% url 'student_home' %}">
+                    {% csrf_token %}
+                    <label for="program">Program:</label>
+                    <select id="program" name="program" {% if user.profile.program %}disabled{% endif %} required>
+                        <option value="" disabled {% if not user.profile.program %}selected{% endif %}>Please select your program</option>
+                        <option value="BSCS" {% if user.profile.program == 'BSCS' %}selected{% endif %}>BSCS</option>
+                        <option value="BSHM" {% if user.profile.program == 'BSHM' %}selected{% endif %}>BSHM</option>
+                        <option value="BSES" {% if user.profile.program == 'BSES' %}selected{% endif %}>BSES</option>
+                        <option value="BEED" {% if user.profile.program == 'BEED' %}selected{% endif %}>BEED</option>
+                        <option value="BTLED-HE" {% if user.profile.program == 'BTLED-HE' %}selected{% endif %}>BTLED-HE</option>
+                        <option value="BSED-MATH" {% if user.profile.program == 'BSED-MATH' %}selected{% endif %}>BSED-MATH</option>
+                    </select>
+                    
+                    <label for="year_level">Year Level:</label>
+                    <select id="year_level" name="year_level" {% if user.profile.year_level %}disabled{% endif %} required>
+                        <option value="" disabled {% if not user.profile.year_level %}selected{% endif %}>Please select your year level</option>
+                        <option value="1st Year" {% if user.profile.year_level == '1st Year' %}selected{% endif %}>1st Year</option>
+                        <option value="2nd Year" {% if user.profile.year_level == '2nd Year' %}selected{% endif %}>2nd Year</option>
+                        <option value="3rd Year" {% if user.profile.year_level == '3rd Year' %}selected{% endif %}>3rd Year</option>
+                        <option value="4th Year" {% if user.profile.year_level == '4th Year' %}selected{% endif %}>4th Year</option>
+                        <option value="5th Year" {% if user.profile.year_level == '5th Year' %}selected{% endif %}>5th Year and Above</option>
+                    </select>
+                    
+                    <div class="buttons">
+                        <button type="submit" class="save-btn">Save</button>
+                        <button type="button" class="edit-btn" id="edit-button" {% if not user.profile.program or not user.profile.year_level %}disabled{% endif %}>Edit</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+    <script>
+        // Get elements
+        const programSelect = document.getElementById("program");
+        const yearLevelSelect = document.getElementById("year_level");
+        const editButton = document.getElementById("edit-button");
+
+        // Enable fields for editing when the Edit button is clicked
+        editButton.addEventListener("click", function () {
+            programSelect.disabled = false;
+            yearLevelSelect.disabled = false;
+            editButton.disabled = true;  // Disable the Edit button after clicking it
+        });
+    </script>
 </body>
 </html>

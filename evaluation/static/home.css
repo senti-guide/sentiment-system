@@ -1,133 +1,181 @@
 /* General Reset */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Source Sans Pro', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Source Sans Pro', sans-serif;
 }
 
-/* Container Layout */
+body {
+  background-color: #f5f6f8;
+}
+
 .container {
-    display: flex;
-    height: 100vh;
-    width: 100%;
+  display: flex;
+  width: 100%;
+  height: 100vh;
 }
 
-/* Sidebar Styling */
-.sidebar {
-    width: 250px;
-    background-color: #2196F3;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 20px;
-    text-align: center;
+/* Profile Container */
+.profile-container {
+  width: 80%;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+  margin-top: 1%;
+  margin-bottom: 1%;
 }
 
-.sidebar .logo {
-    text-align: center;
-    margin-bottom: 20px;
+/* Banner */
+.banner {
+  height: 150px;
+  background:#2196F3;
+  position: relative;
 }
 
-.sidebar .logo img {
-    width: 60px;
-    height: 60px;
+/* Profile Icon */
+.profile-icon {
+  width: 100px;
+  height: 100px;
+  background-color: #ddd;
+  border-radius: 50%;
+  border: 5px solid white;
+  position: absolute;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.sidebar .logo h2 {
-    font-size: 1.5em;
-    margin-top: 10px;
+.google-icon {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
-.nav-links {
-    list-style: none;
-    width: 100%;
+/* Profile Details */
+.profile-details {
+  text-align: center;
+  margin-top: 50px;
+  margin-bottom: 20px;
 }
 
-.nav-links li {
-    width: 100%;
+.profile-name {
+  font-size: 1.8em;
+  margin: 0;
 }
 
-.nav-links a {
-    display: flex;
-    align-items: center;
-    padding: 15px 20px;
-    color: white;
-    text-decoration: none;
-    font-size: 1.1em;
-    transition: background-color 0.3s;
+.profile-info {
+  font-size: 0.9em;
+  color: gray;
+  margin: 5px 0 0;
 }
 
-.nav-links a:hover{
-    background-color: #1A73E8;
+/* Profile Form */
+.profile-form {
+  width: 90%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.nav-links a i {
-    margin-right: 10px;
-    font-size: 0.8em;
+.profile-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.logout {
-    margin-top: auto;
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    color: white;
-    text-decoration: none;
-    font-size: 1.1em;
-    width: 100%;
-    transition: background-color 0.3s;
+.profile-form label {
+  font-weight: bold;
+  color: #555;
 }
 
-.logout:hover {
-    background-color: #1A73E8;
+.profile-form select {
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fff;
+  color: #555;
+  transition: border-color 0.3s;
 }
 
-.logout i {
-    margin-right: 10px;
-    font-size: 0.8em;
+.profile-form select:focus {
+  outline: none;
+  border-color: #6a11cb;
+  box-shadow: 0 0 4px rgba(106, 17, 203, 0.4);
 }
 
-/* Main Content Styling */
-.main-content {
-    flex: 1;
-    background-color: #F5F5F5;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
+/* Buttons */
+.buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
 }
 
-.welcome-section {
-    background-color: #03A9F4;
-    color: white;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
+.save-btn {
+  padding: 10px 20px;
+  width: 50%;
+  margin-right: 2.5px;
+  font-size: 1em; 
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  transition: background-color 0.3s ease-in-out;
+}
+  
+.edit-btn {
+  padding: 10px 20px;
+  width: 50%;
+  margin-left:2.5px;
+  font-size: 1em; 
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  transition: background-color 0.3s ease-in-out;
 }
 
-.welcome-section h1 {
-    font-size: 2em;
+.save-btn {
+  background-color: #4CAF50;
 }
 
-.welcome-section .highlight {
-    font-weight: bold;
+.save-btn:hover {
+  background-color: #45a049;
 }
 
-.reminders-section {
-    display: flex;
-    margin-top: 20px;
-    gap: 20px;
+.edit-btn {
+  background-color: #2196F3;
 }
 
-.reminder-box, .extra-box {
-    flex: 1;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.edit-btn:hover {
+  background-color: #1976D2;
 }
 
-.reminder-box h2 {
-    color: #2196F3;
+/* Evaluation History */
+.courses {
+  padding: 20px;
+}
+
+.courses h3 {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  color: #333;
+}
+
+select[disabled], button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

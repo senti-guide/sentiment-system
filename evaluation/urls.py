@@ -2,6 +2,8 @@
 from django.urls import path
 from . import views
 from .views import student_evaluation_form_view
+from .views import google_login_redirect
+
 
 urlpatterns = [
     path('', views.welcome_view, name='welcome'),
@@ -17,4 +19,6 @@ urlpatterns = [
     path('admin_results/<int:event_id>/', views.admin_results_view, name='admin_results'),
     path('admin_about/', views.admin_about_view, name='admin_about'),
     path('logout/', views.logout_view, name='logout'),
+    path('google-login-redirect/', google_login_redirect, name='google_login_redirect'),
+    path('wordcloud/', views.generate_wordcloud_view, name='wordcloud_image'),
 ]

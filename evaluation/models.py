@@ -8,13 +8,21 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+    
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    program = models.CharField(max_length=100, null=True, blank=True)
+    year_level = models.CharField(max_length=100, default="1st Year")
+
+    def __str__(self):
+        return f"Profile of {self.user.username}"
 
 # Evaluation model
 class Evaluation(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='evaluations')
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='evaluations')  # Link to User (student)
-    program = models.CharField(max_length=100, null=True, blank=True) # For program (BSCS, BSHM, etc.)
-    year_level = models.CharField(max_length=100, default="1st Year")   # Required # For year level (1st Year, 2nd Year, etc.)
+    program = models.CharField(max_length=100, null=True, blank=True)  # Added program field
+    year_level = models.CharField(max_length=100, default="1st Year")  # Added year_level field
     q1 = models.PositiveIntegerField(default=1)  # Temporarily set default
     q2 = models.PositiveIntegerField(default=1)  # Temporarily set default
     q3 = models.PositiveIntegerField(default=1)  # Temporarily set default

@@ -11,10 +11,15 @@
 </head>
 <body>
     <div class="container">
+
+        <!-- Back Button -->
+        <div class="back-button-container">
+            <a href="{% url 'admin_evaluation' %}" class="back-button">← Back</a>
+        </div>
         <!-- Main Content -->
+
         <div class="main-content">
             <h1>{{ event.title }} Evaluation Results</h1>
-
             <!-- Comments Table -->
             <h3>Comments</h3>
             <table>
@@ -25,7 +30,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for comment in comments_data %}
+                    {% for comment in comments_page %}
                         <tr>
                             <td>{{ comment.comment }}</td>
                             <td>{{ comment.label }}</td>
@@ -33,7 +38,16 @@
                     {% endfor %}
                 </tbody>
             </table>
-
+            <!-- Comments Pagination -->
+            <div class="pagination">
+                {% if comments_page.has_previous %}
+                    <a href="?comments_page={{ comments_page.previous_page_number }}&suggestions_page={{ suggestions_page.number }}">Previous</a>
+                {% endif %}
+                <span>Page {{ comments_page.number }} of {{ comments_page.paginator.num_pages }}</span>
+                {% if comments_page.has_next %}
+                    <a href="?comments_page={{ comments_page.next_page_number }}&suggestions_page={{ suggestions_page.number }}">Next</a>
+                {% endif %}
+            </div>
             <!-- Pie Charts Section -->
             <h3>Pie Charts</h3>
             <div id="charts-container">
@@ -68,15 +82,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for suggestion in suggestions %}
+                    {% for suggestion in suggestions_page %}
                         <tr>
                             <td>{{ suggestion }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-    </div>
+            <!-- Suggestions Pagination -->
+            <div class="pagination">
+                {% if suggestions_page.has_previous %}
+                    <a href="?comments_page={{ comments_page.number }}&suggestions_page={{ suggestions_page.previous_page_number }}">Previous</a>
+                {% endif %}
+                <span>Page {{ suggestions_page.number }} of {{ suggestions_page.paginator.num_pages }}</span>
+                {% if suggestions_page.has_next %}
+                    <a href="?comments_page={{ comments_page.number }}&suggestions_page={{ suggestions_page.next_page_number }}">Next</a>
+                {% endif %}
+            </div>
 
     <script>
         // Future Attendance Pie Chart
@@ -169,6 +191,19 @@
                 }
             }
         });
+
+            // Pagination Logic
+    function goToPage(pageNumber, tableType) {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        if (tableType === 'comments') {
+            urlParams.set('comments_page', pageNumber);  // Update the comments page number
+        } else if (tableType === 'suggestions') {
+            urlParams.set('suggestions_page', pageNumber);  // Update the suggestions page number
+        }
+
+        window.location.search = urlParams.toString();  // Refresh the page with the updated URL
+    }
     </script>
 </body>
 </html>

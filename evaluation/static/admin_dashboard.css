@@ -1,0 +1,114 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+/* Flex Container for Layout */
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Main Content Styling */
+.main-content {
+    flex: 1; /* Fills remaining space */
+    background-color: #F5F5F5;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Prevent content overflow */
+}
+
+.ranking-section {
+    display: flex;
+    margin-top: 0;
+    gap: 20px;
+}
+
+.positive-ranks {
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.negative-ranks {
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.positive-ranks h3 {
+    color: #2196F3;
+}
+
+.negative-ranks h3 {
+    color: #2196F3;
+}
+
+/* Table styling */
+.positive-ranks, .negative-ranks {
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.positive-ranks h3, .negative-ranks h3 {
+    color: #2196F3;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+td {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+.word-cloud {
+    margin-top: 30px;
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.word-cloud h3 {
+    color: #2196F3;
+    margin-bottom: 20px;
+}
+
+.word-cloud img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}

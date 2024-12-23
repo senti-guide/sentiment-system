@@ -37,8 +37,34 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'evaluation',    
+    'evaluation',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',     
 ]
+
+AUTHENTICATION_BACKENDS = [
+	'allauth.account.auth_backends.AuthenticationBackend'
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id':'591193491341-628ft3kl9hjm7k8bp052v8skr5v2c7e2.apps.googleusercontent.com',
+            'secret': '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',
+          
+        },
+        'SCOPE': ['profile','email',],
+         'AUTH_PARAMS': {'access_type': 'online'},
+        'METHOD': 'oauth2',
+        'VERIFIED_EMAIL': True,
+    },
+}
+
+SOCIALACCOUNT_LOGIN_ON_GET=True
+LOGIN_REDIRECT_URL = '/google-login-redirect/'  # Ensure this maps to your google_login_redirect view
+ACCOUNT_SIGNUP_REDIRECT_URL = '/google-login-redirect/'  # Ensure new users follow the same redirection logic
 
 
 MIDDLEWARE = [
@@ -49,6 +75,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'sentiment.urls'

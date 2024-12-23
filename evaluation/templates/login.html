@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,14 +18,14 @@
             <h1 class="title">Senti Guide</h1>
             <h2 class="login-title">Login</h2>
             
-            <!-- Display messages if any -->
+            <!-- Display messages if any 
             {% if messages %}
                 <div class="messages">
                     {% for message in messages %}
                         <p class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
                     {% endfor %}
                 </div>
-            {% endif %}
+            {% endif %}-->
             
             <!-- Updated form -->
             <form method="post" action="{% url 'login' %}">
@@ -39,16 +40,18 @@
             </form>
             
             <div class="links">
-                <a href="#">Forgot Password?</a> | <a href="{% url 'register' %}">Register</a>
+                <p>Don't have an account? |<a href="{% url 'register' %}">Register</a></p>
             </div>
 
-                        <!-- Continue with Google button -->
+            <!-- Continue with Google button -->
             <div class="google-login">
-                <button class="google-button" onclick="window.location.href='#'">
-                    <img src="{% static 'google-icon.png' %}" alt="Google Icon" class="google-icon">
-                    Continue with Google
-                </button>
-            </div>
+                <a href="{% provider_login_url 'google' %}">
+                    <button class="google-button">
+                        <img src="{% static 'google-icon.png' %}" alt="Google Icon" class="google-icon">
+                        Continue with Google
+                    </button>
+                </a>
+            </div>   
         </div>
     </div>
 </body>

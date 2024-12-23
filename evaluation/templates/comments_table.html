@@ -1,0 +1,20 @@
+<table>
+    <thead>
+        <tr>
+            <th>Comment</th>
+            <th>Label</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for comment in comments_page.object_list %}
+            <tr>
+                <td>{{ comment.comment }}</td>
+                <td>{{ comment.label }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2">No comments available.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
