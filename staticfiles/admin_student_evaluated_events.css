@@ -1,0 +1,90 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+/* Container Layout */
+.container {
+    display: flex;
+    height: 100vh; 
+}
+
+/* Main Content Styling */
+.main-content {
+    flex: 1; /* Fills remaining space */
+    background-color: #F5F5F5;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Prevent content overflow */
+}
+
+h2 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Table Container */
+.table-container {
+    background: #ffffff;
+    border-radius: 5px;
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    display: flex;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: #00AEEF;
+    color: #ffffff;
+}
+
+thead th {
+    padding: 10px;
+    text-align: left;
+    padding-left: 50px;
+}
+
+tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+    height: 60px; /* Adjust height for thicker rows */
+}
+
+tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+tbody td {
+    padding: 10px;
+    padding-left: 50px;
+}
+
+/* Back Button */
+.back-button-container {
+    margin-bottom: 15px;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #4caf50;;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.back-button:hover {
+    background-color: #388e3c;
+}
