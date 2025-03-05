@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senti Guide</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
+    <link rel="stylesheet" href="{% static 'admin_student_evaluation.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        {% include 'admin_navbar.html' %}
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Search and Filter Container -->
+            <div class="filter-container">
+                <input type="text" id="searchInput" class="search-bar"
+                placeholder="Search student..." value="{{ request.GET.search|default:'' }}">
+                
+                <select id="filterSelect" class="filter-dropdown">
+                    <option value="">Filter Submission Status</option>
+                    <option value="all">All Submissions</option>
+                    <option value="submitted">Students with Submissions</option>
+                    <option value="not-submitted">Students without Submissions</option>
+                </select>
+            </div>
+
+            <!-- Events Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Evaluated Events</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student_data in evaluations_data %}
+                        <tr>
+                            <td>
+                                {{ student_data.student.email }}
+                                <!-- change student.email to uid in order to show UID vice versa-->
+                            </td>
+                            <td>
+                                {{ student_data.evaluated_count }} / {{ student_data.total_events }}
+                            </td>
+                            <td>
+                                <a href="{% url 'admin_student_evaluated_events' student_data.student.id %}">
+                                    <button class="view-btn">View</button>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>                    
+                </table>
+            </div>
+        </div>
+    </div>         
+</body>
+</html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("searchInput");
+        const filterSelect = document.getElementById("filterSelect");
+    
+        function applyFilters() {
+            const searchValue = searchInput.value.trim();
+            const filterValue = filterSelect.value;
+    
+            let params = new URLSearchParams(window.location.search);
+            if (searchValue) {
+                params.set("search", searchValue);
+            } else {
+                params.delete("search"); // Clear search from URL if empty
+            }
+            if (filterValue) {
+                params.set("filter", filterValue);
+            } else {
+                params.delete("filter"); // Clear filter from URL if empty
+            }
+    
+            window.location.href = window.location.pathname + "?" + params.toString();
+        }
+    
+        searchInput.addEventListener("input", applyFilters);
+        filterSelect.addEventListener("change", applyFilters);
+    });
+    </script>
+    
+    

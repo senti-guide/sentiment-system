@@ -8,64 +8,172 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
     <link rel="stylesheet" href="{% static 'student_evaluation.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <!-- Include Navbar -->
-        {% include 'student_navbar.html' %}
-        
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Event Title</th> 
-                            <th>Date</th>
-                            <th>Evaluation Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for event in events %}
-                        <tr data-href="{% url 'student_evaluation_form' event.id %}">
-                            <td>{{ event.title }}</td>
-                            <td>{{ event.date|date:"m/d/Y" }}</td>
-                    
-                            <!-- Evaluation Status -->
-                            <td>
-                                {% if event.evaluation_status == "submitted" %}
-                                    <span class="status submitted"></span> Submitted
-                                {% elif event.evaluation_status == "pending" %}
-                                    <span class="status pending"></span> Pending
-                                {% else %}
-                                    <span class="status waiting"></span> Waiting for Response
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>                    
-                </table>
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="logo-container">
+                <img class="logo" src="{% static 'SG_LOGO.png' %}" alt="Senti Guide Logo">
+                <h2 class="logo-text">Senti Guide</h2>
+            </div>
+            <!-- Search and Filter Container -->
+            <div class="filter-container">
+                <input type="text" id="searchInput" class="search-bar"
+                placeholder="Search event..." value="{{ request.GET.search|default:'' }}">
+
+                <select id="filterStatus" class="filter-dropdown">
+                    <option value="">Filter by Status</option>
+                    <option value="all">All Status</option>
+                    <option value="submitted">Submitted</option>
+                    <option value="waiting">Waiting for Response</option>
+                </select>                
+                            
+                <select id="filterMonth" class="filter-dropdown">
+                    <option value="">Filter by Month</option>
+                    <option value="all">All Months</option>
+                    {% for month_number, month_name in month_choices %}
+                        <option value="{{ month_number }}">{{ month_name }}</option>
+                    {% endfor %}
+                </select>
+            
+                <select id="filterYear" class="filter-dropdown">
+                    <option value="">Filter by Year</option>
+                    <option value="all">All Years</option>
+                    {% for year in year_choices %}
+                        <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            
+                <select id="filterSemester" class="filter-dropdown">
+                    <option value="">Filter by Semester</option>
+                    <option value="all">All Semesters</option>
+                    {% for semester in semester_choices %}
+                        <option value="{{ semester }}">{{ semester }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Sidebar/Navbar and Main Content -->
+        <div class="content-wrapper">
+            <!-- Sidebar/Navbar -->
+            <div class="sidebar">
+                {% include 'student_navbar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event Title</th>
+                                <th>Date</th>
+                                <th>Semester</th>
+                                <th>Evaluation Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="event-table-body">
+                            {% for event in events %}
+                            <tr>
+                                <td>{{ event.title }}</td>
+                                <td>{{ event.date|date:"m/d/Y" }}</td>
+                                <td>
+                                    {% if event.semester == "1st Semester" %}
+                                        1st
+                                    {% elif event.semester == "2nd Semester" %}
+                                        2nd
+                                    {% else %}
+                                        {{ event.semester }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if event.evaluation_status == "submitted" %}
+                                        <span class="status submitted"></span> Submitted
+                                    {% elif event.evaluation_status == "waiting" %}
+                                        <span class="status waiting"></span> Waiting for Response
+                                    {% else %}
+                                        <span class="status pending"></span> Pending
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if event.evaluation_status == "submitted" %}
+                                        <button class="evaluate-btn" disabled>Evaluate</button>
+                                    {% else %}
+                                        <a href="{% url 'student_evaluation_form' event.id %}">
+                                            <button class="evaluate-btn">Evaluate</button>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Get all table rows in the table body
-            const rows = document.querySelectorAll("tbody tr");
-
-            rows.forEach(row => {
-                // Add a click event listener to each row
-                row.addEventListener("click", function() {
-                    // Get the URL from the data-href attribute
-                    const href = this.getAttribute("data-href");
-                    
-                    // Redirect to the URL
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const filterMonth = document.getElementById("filterMonth");
+        const filterYear = document.getElementById("filterYear");
+        const filterSemester = document.getElementById("filterSemester");
+        const filterStatus = document.getElementById("filterStatus"); // Added status filter
+
+        function applyFilters() {
+            const searchValue = searchInput.value.trim();
+            const monthValue = filterMonth.value;
+            const yearValue = filterYear.value;
+            const semesterValue = filterSemester.value;
+            const statusValue = filterStatus.value; // Capture status filter
+
+            let params = new URLSearchParams(window.location.search);
+
+            if (searchValue) {
+                params.set("search", searchValue);
+            } else {
+                params.delete("search");
+            }
+
+            if (monthValue) {
+                params.set("month", monthValue);
+            } else {
+                params.delete("month");
+            }
+
+            if (yearValue) {
+                params.set("year", yearValue);
+            } else {
+                params.delete("year");
+            }
+
+            if (semesterValue) {
+                params.set("semester", semesterValue);
+            } else {
+                params.delete("semester");
+            }
+
+            if (statusValue) {
+                params.set("status", statusValue);
+            } else {
+                params.delete("status");
+            }
+
+            window.location.href = window.location.pathname + "?" + params.toString();
+        }
+
+        searchInput.addEventListener("input", applyFilters);
+        filterMonth.addEventListener("change", applyFilters);
+        filterYear.addEventListener("change", applyFilters);
+        filterSemester.addEventListener("change", applyFilters);
+        filterStatus.addEventListener("change", applyFilters); // Added event listener for status filter
+    });
+</script>
+

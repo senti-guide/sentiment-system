@@ -12,27 +12,37 @@
 <body>
     <div class="container">
         <!-- Sidebar -->
-        <!-- Include Navbar -->
         {% include 'admin_navbar.html' %}
-        
+
         <!-- Main Content -->
         <div class="main-content">
-
-            <!-- Create New Evaluation Form -->
+            <!-- Create/Edit Evaluation Form -->
             <div id="evaluationFormContainer" class="form-container" style="display: none;">
                 <h1>Evaluation Form Management</h1>
-                <h3>Create New Evaluation Form</h3>
-                <form method="POST" action="{% url 'admin_evaluation' %}">
+                <h3 id="formTitle">Create New Evaluation Form</h3>
+                <form method="POST" action="{% url 'admin_evaluation' %}" id="evaluationForm">
                     {% csrf_token %}
+                    <input type="hidden" name="event_id" id="event-id" value=""> <!-- Hidden input for event ID if editing -->
                     <div class="form-group">
                         <label for="event-title">Event Title</label>
                         <input type="text" id="event-title" name="event_title" placeholder="Enter Event Title" required>
                     </div>
-                    <div class="form-group">
-                        <label for="event-date">Event Date</label>
-                        <input type="date" id="event-date" name="event_date" required>
-                    </div>
-                    <button type="submit" class="create-button">Create</button>
+                    <div class="form-group row">
+                        <div class="col">
+                            <label for="event-date">Event Date</label>
+                            <input type="date" id="event-date" name="event_date" required>
+                        </div>
+                        <div class="col">
+                            <label for="event-semester">Semester</label>
+                            <select id="event-semester" name="event_semester" class="styled-select" required>
+                                <option value="" disabled selected>Select Semester</option>
+                                <option value="1st Semester">1st Semester</option>
+                                <option value="2nd Semester">2nd Semester</option>
+                            </select>
+                        </div>
+                    </div>                                      
+                    <button type="submit" class="create-button">Save</button>
+                    <button type="button" id="cancel-edit-button">Cancel</button>
                 </form>                
             </div>
 
@@ -41,6 +51,36 @@
                 <i class="fa-solid fa-circle-plus fa-rotate-90"></i>
             </button>
 
+            <!-- Search and Filter Container -->
+             <div class="filter-container">
+                <input type="text" id="searchInput" class="search-bar"
+                placeholder="Search event..." value="{{ request.GET.search|default:'' }}">
+                            
+                <select id="filterMonth" class="filter-dropdown">
+                    <option value="">Filter by Month</option>
+                    <option value="all">All Months</option>
+                    {% for month_number, month_name in month_choices %}
+                        <option value="{{ month_number }}">{{ month_name }}</option>
+                    {% endfor %}
+                </select>
+            
+                <select id="filterYear" class="filter-dropdown">
+                    <option value="">Filter by Year</option>
+                    <option value="all">All Years</option>
+                    {% for year in year_choices %}
+                        <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            
+                <select id="filterSemester" class="filter-dropdown">
+                    <option value="">Filter by Semester</option>
+                    <option value="all">All Semesters</option>
+                    {% for semester in semester_choices %}
+                        <option value="{{ semester }}">{{ semester }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <!-- Events Table -->
             <div class="table-container">
                 <table>
@@ -48,21 +88,51 @@
                         <tr>
                             <th>Event Title</th>
                             <th>Date</th>
+                            <th>Semester</th>
                             <th>Responses</th>
                             <th>Sentiment Distribution</th>
+                            <th>Action</th> <!-- Added Actions Column -->
                         </tr>
                     </thead>
                     <tbody>
                         {% for event in event_data %}
-                            <tr data-href="{% url 'admin_results' event_id=event.id %}">
+                            <tr>
                                 <td>{{ event.title }}</td>
                                 <td>{{ event.date }}</td>
+                                <td>
+                                    {% if event.semester == "1st Semester" %}
+                                        1st
+                                    {% elif event.semester == "2nd Semester" %}
+                                        2nd
+                                    {% else %}
+                                        {{ event.semester }}
+                                    {% endif %}
+                                </td>                                
                                 <td>{{ event.total_responses }}</td>
                                 <td>
                                     <span class="status positive"><i class="fa-solid fa-face-smile"></i> {{ event.positive_percentage|floatformat:2 }}%</span>
                                     <span class="status neutral"><i class="fa-solid fa-face-meh"></i> {{ event.neutral_percentage|floatformat:2 }}%</span>
                                     <span class="status negative"><i class="fa-solid fa-face-frown"></i> {{ event.negative_percentage|floatformat:2 }}%</span>                                                                      
                                 </td>
+                                <td>
+                                    <!-- View Button with Tooltip -->
+                                    <a href="{% url 'admin_results' event_id=event.id %}" class="view-btn">
+                                        <i class="fa-regular fa-eye"></i>
+                                        <span class="tooltip">View</span>
+                                    </a>
+                                    
+                                    <!-- Edit Button with Data and Tooltip -->
+                                    <button class="edit-btn" onclick="editEvent({{ event.id }}, '{{ event.title }}', '{{ event.date }}')">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                        <span class="tooltip">Edit</span>
+                                    </button>
+                                    
+                                    <!-- Delete Button with Tooltip -->
+                                    <button class="delete-btn" onclick="confirmDelete({{ event.id }}, '{{ event.title }}')">
+                                        <i class="fa-regular fa-trash-can"></i>
+                                        <span class="tooltip">Delete</span>
+                                    </button>
+                                </td>                                
                             </tr>
                         {% endfor %}
                     </tbody>                    
@@ -71,36 +141,140 @@
         </div>
     </div>
 
+    <!-- Confirmation Dialog -->
+    <div id="confirmationDialog" class="confirmation-dialog">
+        <div class="confirmation-content">
+            <h2>Are you sure you want to delete this event?</h2>
+            <button id="confirmDeleteBtn">Yes, Delete</button>
+            <button id="cancelDeleteBtn">Cancel</button>
+        </div>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Get all table rows in the table body
-            const rows = document.querySelectorAll("tbody tr");
-
-            rows.forEach(row => {
-                // Add a click event listener to each row
-                row.addEventListener("click", function() {
-                    // Get the URL from the data-href attribute
-                    const href = this.getAttribute("data-href");
-                    
-                    // Redirect to the URL
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-            });
-
             const formContainer = document.getElementById("evaluationFormContainer");
-            const button = document.getElementById("addEvaluationFormBtn");
-
-            // Toggle visibility of the form when the button is clicked
-            button.addEventListener("click", function() {
-                if (formContainer.style.display === "none" || formContainer.style.display === "") {
-                    formContainer.style.display = "block";
-                } else {
-                    formContainer.style.display = "none";
-                }
+            const addFormButton = document.getElementById("addEvaluationFormBtn");
+            const formTitle = document.getElementById("formTitle");
+            const evaluationForm = document.getElementById("evaluationForm");
+            const cancelEditButton = document.getElementById("cancel-edit-button");
+            const dialog = document.getElementById("confirmationDialog");
+    
+            // Hide the confirmation dialog when the page is loaded or navigated back to
+            dialog.style.display = "none";
+    
+            // Clear form fields
+            function clearFormFields() {
+                document.getElementById("event-id").value = "";
+                document.getElementById("event-title").value = "";
+                document.getElementById("event-date").value = "";
+            }
+        
+            // Toggle creation form
+            addFormButton.addEventListener("click", function() {
+                clearFormFields();
+                formTitle.innerText = "Create New Evaluation Form";
+                evaluationForm.action = "{% url 'admin_evaluation' %}"; // Reset form action
+                formContainer.style.display = formContainer.style.display === "none" ? "block" : "none";
             });
+        
+            // Cancel editing
+            cancelEditButton.addEventListener("click", function() {
+                formContainer.style.display = "none";
+                clearFormFields();
+            });
+        
+            // Populate form with existing event data for editing
+            window.editEvent = function(eventId, eventTitle, eventDate) {
+                clearFormFields();
+                formTitle.innerText = "Edit Evaluation Form";
+                evaluationForm.action = "{% url 'admin_evaluation' %}";
+                document.getElementById("event-id").value = eventId;
+                document.getElementById("event-title").value = eventTitle;
+                document.getElementById("event-date").value = eventDate;
+                formContainer.style.display = "block";
+            };
+        
+            // Deletion confirmation functionality
+            let deleteEventId = null;
+        
+            // Show confirmation dialog for deletion
+            window.confirmDelete = function(eventId, eventTitle) {
+                // Show the confirmation dialog
+                dialog.style.display = "flex";  // Change to 'flex' to show it
+        
+                // Set the event ID for deletion
+                deleteEventId = eventId;
+        
+                // Handle the confirmation click
+                document.getElementById("confirmDeleteBtn").onclick = function() {
+                    // Redirect to the delete view
+                    window.location.href = "/delete_event/" + deleteEventId + "/";  // Redirect to the delete view
+                };
+        
+                // Handle the cancel click
+                document.getElementById("cancelDeleteBtn").onclick = function() {
+                    dialog.style.display = "none";  // Hide the dialog on cancel
+                };
+            };
+        
+            // Hide the confirmation dialog if the user clicks outside the dialog
+            window.onclick = function(event) {
+                if (event.target == dialog) {
+                    dialog.style.display = "none";  // Hide the dialog if user clicks outside
+                }
+            };
+    
+            // Ensure dialog is hidden on page load or navigation
+            window.addEventListener('beforeunload', function() {
+                dialog.style.display = 'none';
+            });
+    
+            // ---------------- CONTINUATION: Search & Filter Functionality ----------------
+            const searchInput = document.getElementById("searchInput");
+            const filterMonth = document.getElementById("filterMonth");
+            const filterYear = document.getElementById("filterYear");
+            const filterSemester = document.getElementById("filterSemester");
+    
+            function applyFilters() {
+                const searchValue = searchInput.value.trim();
+                const monthValue = filterMonth.value;
+                const yearValue = filterYear.value;
+                const semesterValue = filterSemester.value;
+    
+                let params = new URLSearchParams(window.location.search);
+    
+                if (searchValue) {
+                    params.set("search", searchValue);
+                } else {
+                    params.delete("search"); // Remove search from URL if empty
+                }
+    
+                if (monthValue) {
+                    params.set("month", monthValue);
+                } else {
+                    params.delete("month"); // Remove month from URL if empty
+                }
+    
+                if (yearValue) {
+                    params.set("year", yearValue);
+                } else {
+                    params.delete("year"); // Remove year from URL if empty
+                }
+    
+                if (semesterValue) {
+                    params.set("semester", semesterValue);
+                } else {
+                    params.delete("semester"); // Remove semester from URL if empty
+                }
+    
+                window.location.href = window.location.pathname + "?" + params.toString();
+            }
+    
+            searchInput.addEventListener("input", applyFilters);
+            filterMonth.addEventListener("change", applyFilters);
+            filterYear.addEventListener("change", applyFilters);
+            filterSemester.addEventListener("change", applyFilters);
         });
-    </script>
+    </script>             
 </body>
 </html>

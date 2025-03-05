@@ -127,7 +127,24 @@
                 labels: {{ program_labels|safe }},
                 datasets: [{
                     data: {{ program_counts|safe }},
-                    backgroundColor: ['#4caf50', '#ffeb3b', '#f44336', '#2196f3', '#9c27b0'], // Add more colors as needed
+                    backgroundColor: {{ program_labels|safe }}.map(program => {
+                        switch(program) {
+                            case 'BSCS':
+                                return '#f44336'; // red
+                            case 'BSHM':
+                                return '#808080'; // gray
+                            case 'BSES':
+                                return '#4caf50'; // green
+                            case 'BEED':
+                                return '#2196f3'; // blue
+                            case 'BTLED-HE':
+                                return '#9c27b0'; // purple
+                            case 'BSED-MATH':
+                                return '#ff5722'; // orange
+                            default:
+                                return '#cccccc'; // default color if not matched
+                        }
+                    }),
                 }]
             },
             options: {
@@ -138,6 +155,7 @@
                 }
             }
         });
+
 
         // Year Level Distribution Pie Chart
         const yearLevelDistributionChart = new Chart(document.getElementById("year-level-distribution-chart"), {

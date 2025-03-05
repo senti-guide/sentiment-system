@@ -22,88 +22,62 @@
     overflow-y: auto; /* Prevent content overflow */
 }
 
-.ranking-section {
-    display: flex;
-    margin-top: 0;
-    gap: 20px;
-}
-
-.positive-ranks {
-    flex: 1;
-    background-color: white;
+/* Chart Containers */
+.chart-container {
+    background: white;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.negative-ranks {
-    flex: 1;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.positive-ranks h3 {
-    color: #2196F3;
-}
-
-.negative-ranks h3 {
-    color: #2196F3;
-}
-
-/* Table styling */
-.positive-ranks, .negative-ranks {
-    flex: 1;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.positive-ranks h3, .negative-ranks h3 {
-    color: #2196F3;
-    text-align: center;
     margin-bottom: 20px;
+    text-align: center;
+    position: relative; 
 }
 
-table {
+.chart-container h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* Layout for Charts */
+.charts-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* Row for Top 5 Events */
+.top-events {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
 }
 
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+.top-events .chart-container {
+    flex: 1;
+    max-width: 48%;
 }
 
-th {
-    background-color: #4CAF50;
-    color: white;
-    font-weight: bold;
+/* Full-Width Charts */
+.full-width-chart {
+    width: 100%;
+    position: relative; 
 }
 
-td {
-    background-color: #f9f9f9;
-}
-
-tr:hover {
-    background-color: #f1f1f1;
-}
-
+/* Word Cloud Styling */
 .word-cloud {
-    margin-top: 30px;
     text-align: center;
     background-color: white;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .word-cloud h3 {
-    color: #2196F3;
+    color: #333;
     margin-bottom: 20px;
 }
 
@@ -112,3 +86,87 @@ tr:hover {
     height: auto;
     border-radius: 8px;
 }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .top-events {
+        flex-direction: column;
+    }
+
+    .top-events .chart-container {
+        max-width: 100%;
+    }
+}
+
+    /* Custom Styling for Two-Column Legend */
+    .legend-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .legend-column {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 150px;
+        padding: 5px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .legend-box {
+        width: 12px;
+        height: 12px;
+        display: inline-block;
+        border-radius: 2px;
+    }
+
+    .print-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 20px;
+        color: #2196f3;
+        transition: color 0.3s ease, background 0.3s ease;
+        padding: 5px;
+        border-radius: 50%;
+    }
+    
+    .print-btn:hover {
+        color: #1976D2;
+        background: rgba(76, 175, 80, 0.1); /* Light green hover effect */
+    }
+    
+    
+    /* Style for the tooltip text */
+    .tooltip {
+    visibility: hidden; /* Hide the tooltip by default */
+    position: absolute;
+    bottom: 100%; /* Position above the button */
+    left: 50%;
+    transform: translateX(-50%); /* Center the tooltip */
+    background-color: #333; /* Dark background */
+    color: #fff; /* White text */
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 12px; /* Smaller text */
+    opacity: 0; /* Make it transparent initially */
+    transition: opacity 0.3s; /* Smooth fade-in effect */
+    }
+
+    /* Show the tooltip on hover */
+    .print-btn:hover .tooltip {
+    visibility: visible;
+    opacity: 1; /* Make the tooltip fully visible */
+    }

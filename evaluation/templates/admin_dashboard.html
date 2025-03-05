@@ -4,64 +4,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Senti Guide</title>
+    <title>Senti Guide - Admin Dashboard</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap">
     <link rel="stylesheet" href="{% static 'admin_dashboard.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
 </head>
 <body>
     <div class="container">
         <!-- Include Navbar -->
         {% include 'admin_navbar.html' %}
         
-        <!-- Main Content -->
         <div class="main-content">
-            <div class="ranking-section">
-                <!-- Positive Rankings -->
-                <!-- Positive Rankings -->
-                <div class="positive-ranks">
-                    <h3>Top 5 Events with Positive Comments</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Event Title</th>
-                                <th>Positive Percentage</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for event in positive_events %}
-                            <tr>
-                                <td>{{ event.title }}</td>
-                                <td>{{ event.positive_percentage }}%</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
 
-                <!-- Negative Rankings -->
-                <div class="negative-ranks">
+            <!-- Top 5 Events -->
+            <div class="top-events">
+                <div class="chart-container">
+                    <h3>Top 5 Events with Positive Comments</h3>
+                    <canvas id="positiveChart"></canvas>
+                    <button class="print-btn" id="printPositiveChart" onclick="printChart('positiveChart', 'Top 5 Events with Positive Comments')"><i class="fa-solid fa-print"></i><span class="tooltip">Print</span></button>
+                    <div id="positiveLegend" class="legend-container"></div> <!-- Custom Legend -->
+                </div>
+                <div class="chart-container">
                     <h3>Top 5 Events with Negative Comments</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Event Title</th>
-                                <th>Negative Percentage</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for event in negative_events %}
-                            <tr>
-                                <td>{{ event.title }}</td>
-                                <td>{{ event.negative_percentage }}%</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <canvas id="negativeChart"></canvas>
+                    <button class="print-btn" id="printNegativeChart" onclick="printChart('negativeChart', 'Top 5 Events with Negative Comments')"><i class="fa-solid fa-print"></i><span class="tooltip">Print</span></button>
+                    <div id="negativeLegend" class="legend-container"></div> <!-- Custom Legend -->
                 </div>
             </div>
 
-            <!-- Word Cloud Section -->
+            <!-- Sentiment Breakdown by Program -->
+            <div class="chart-container full-width-chart">
+                <h3>Sentiment Distribution by Program</h3>
+                <canvas id="programChart"></canvas>
+                <button class="print-btn" id="printProgramChart" onclick="printChart('programChart', 'Sentiment Distribution by Program')"><i class="fa-solid fa-print"></i><span class="tooltip">Print</span></button>
+            </div>
+
+            <!-- Sentiment Breakdown by Year Level -->
+            <div class="chart-container full-width-chart">
+                <h3>Sentiment Distribution by Year Level</h3>
+                <canvas id="yearChart"></canvas>
+                <button class="print-btn" id="printYearChart" onclick="printChart('yearChart', 'Sentiment Distribution by Year Level')"><i class="fa-solid fa-print"></i><span class="tooltip">Print</span></button>
+            </div>
+
+            <!-- Word Cloud -->
             <div class="word-cloud">
                 <h3>Word Cloud</h3>
                 <img src="{% url 'wordcloud_image' %}" alt="Word Cloud">
@@ -70,3 +56,179 @@
     </div>
 </body>
 </html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Shades of Green for Top 5 Positive Events
+        const positiveColors = ['#4CAF50', '#66BB6A', '#81C784', '#A5D6A7', '#C8E6C9'];
+
+        // Shades of Red for Top 5 Negative Events
+        const negativeColors = ['#F44336', '#E57373', '#EF9A9A', '#FFCDD2', '#FFEBEE'];
+
+        // Function to Generate Custom Two-Column Legend
+        function generateTwoColumnLegend(chart, legendContainerId, colors) {
+            const legendContainer = document.getElementById(legendContainerId);
+            legendContainer.innerHTML = ""; // Clear previous legend
+
+            const labels = chart.data.labels;
+            const legendItems = labels.map((label, index) => `
+                <div class="legend-item">
+                    <span class="legend-box" style="background-color: ${colors[index]};"></span> ${label}
+                </div>
+            `);
+
+            // Split into two columns (3 in first, 2 in second)
+            const firstColumn = legendItems.slice(0, 3).join("");
+            const secondColumn = legendItems.slice(3, 5).join("");
+
+            legendContainer.innerHTML = `
+                <div class="legend-column">${firstColumn}</div>
+                <div class="legend-column">${secondColumn}</div>
+            `;
+        }
+
+        // Top 5 Events with Positive Sentiment
+        const positiveEvents = {{ positive_events|safe }};
+        const positiveLabels = positiveEvents.map(event => event.title);
+        const positivePercentages = positiveEvents.map(event => event.positive_percentage);
+
+        const positiveChart = new Chart(document.getElementById("positiveChart"), {
+            type: 'pie',
+            data: {
+                labels: positiveLabels,
+                datasets: [{
+                    label: 'Percentage',
+                    data: positivePercentages,
+                    backgroundColor: positiveColors.slice(0, positiveLabels.length),
+                }]
+            },
+            options: { plugins: { legend: { display: false } } } // Hide default legend
+        });
+
+        generateTwoColumnLegend(positiveChart, "positiveLegend", positiveColors);
+
+        // Top 5 Events with Negative Sentiment
+        const negativeEvents = {{ negative_events|safe }};
+        const negativeLabels = negativeEvents.map(event => event.title);
+        const negativePercentages = negativeEvents.map(event => event.negative_percentage);
+
+        const negativeChart = new Chart(document.getElementById("negativeChart"), {
+            type: 'pie',
+            data: {
+                labels: negativeLabels,
+                datasets: [{
+                    label: 'Percentage',
+                    data: negativePercentages,
+                    backgroundColor: negativeColors.slice(0, negativeLabels.length),
+                }]
+            },
+            options: { plugins: { legend: { display: false } } }
+        });
+
+        generateTwoColumnLegend(negativeChart, "negativeLegend", negativeColors);
+
+        // Sentiment Breakdown by Program
+        const programData = {{ sentiment_by_program|safe }};
+        const programLabels = programData.map(item => item.program);
+        const positivePercentProgram = programData.map(item => item.positive_percentage);
+        const neutralPercentProgram = programData.map(item => item.neutral_percentage);
+        const negativePercentProgram = programData.map(item => item.negative_percentage);
+
+        const programChart = new Chart(document.getElementById("programChart"), {
+            type: 'bar',
+            data: {
+                labels: programLabels,
+                datasets: [
+                    { label: 'Positive', data: positivePercentProgram, backgroundColor: '#4CAF50' },
+                    { label: 'Neutral', data: neutralPercentProgram, backgroundColor: '#17a2b8' },
+                    { label: 'Negative', data: negativePercentProgram, backgroundColor: '#F44336' }
+                ]
+            }
+        });
+
+        // Sentiment Breakdown by Year Level
+        const yearData = {{ sentiment_by_year_level|safe }};
+        const yearLabels = yearData.map(item => item.year_level);
+        const positivePercentYear = yearData.map(item => item.positive_percentage);
+        const neutralPercentYear = yearData.map(item => item.neutral_percentage);
+        const negativePercentYear = yearData.map(item => item.negative_percentage);
+
+        const yearChart = new Chart(document.getElementById("yearChart"), {
+            type: 'bar',
+            data: {
+                labels: yearLabels,
+                datasets: [
+                    { label: 'Positive', data: positivePercentYear, backgroundColor: '#4CAF50' },
+                    { label: 'Neutral', data: neutralPercentYear, backgroundColor: '#17a2b8' },
+                    { label: 'Negative', data: negativePercentYear, backgroundColor: '#F44336' }
+                ]
+            }
+        });
+
+        // Print functionality with Title & Legend
+        function printChart(chartId, chartTitle) {
+            const chartCanvas = document.getElementById(chartId);
+            const chartImage = new Image();
+            chartImage.src = chartCanvas.toDataURL();
+
+            chartImage.onload = function () {
+                const printWindow = window.open('', '', 'width=800,height=600');
+                printWindow.document.write('<html><head><title>Print Chart</title></head><body style="text-align:center; font-family:sans-serif;">');
+
+                // Add Chart Title
+                printWindow.document.write('<h2>' + chartTitle + '</h2>');
+
+                // Add Chart Image
+                printWindow.document.write('<img src="' + chartImage.src + '" style="max-width:100%; height:auto;"/>');
+
+                // Include Legend if Available
+                const chartInstance = Chart.getChart(chartId);
+                if (chartInstance && chartInstance.config.type === 'bar') {
+                    const legendHtml = generateLegendHtml(chartInstance);
+                    printWindow.document.write(legendHtml);
+                }
+
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500); // Ensures the print dialog waits for the image to render
+            };
+        }
+
+        // Function to Generate Legend HTML for Bar Charts
+        function generateLegendHtml(chartInstance) {
+            const dataset = chartInstance.data.datasets;
+            let legendHtml = '<div style="text-align:center; margin-top:10px;">';
+
+            dataset.forEach((data, index) => {
+                legendHtml += `<div style="display:inline-block; margin: 5px;">
+                    <span style="display:inline-block; width:12px; height:12px; background-color:${data.backgroundColor}; margin-right:5px;"></span>
+                    ${data.label}
+                </div>`;
+            });
+
+            legendHtml += '</div>';
+            return legendHtml;
+        }
+
+        // Event Listeners for Print Buttons
+        document.getElementById("printPositiveChart").addEventListener("click", function() {
+            printChart("positiveChart", "Top 5 Events with Positive Comments");
+        });
+
+        document.getElementById("printNegativeChart").addEventListener("click", function() {
+            printChart("negativeChart", "Top 5 Events with Negative Comments");
+        });
+
+        document.getElementById("printProgramChart").addEventListener("click", function() {
+            printChart("programChart", "Sentiment Distribution by Program");
+        });
+
+        document.getElementById("printYearChart").addEventListener("click", function() {
+            printChart("yearChart", "Sentiment Distribution by Year Level");
+        });
+    });
+</script>

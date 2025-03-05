@@ -1,13 +1,14 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'navbar.css' %}">
+<link rel="stylesheet" href="{% static 'admin_navbar.css' %}">
 <nav class="sidebar">
     <div class="logo">
         <img src="{% static 'SG_LOGO_WHITE.png' %}" alt="Senti Guide Logo">
-        <h2>Senti Guide</h2>
+        <h2>Senti Guide - Admin</h2>
     </div>
     <ul class="nav-links">
         <li><a href="{% url 'admin_dashboard' %}" class="{% if request.path == '/admin_dashboard/' or request.path == '/ ' %}active{% endif %}"><i class="fa-solid fa-square-poll-vertical"></i> Dashboard</a></li>
         <li><a href="{% url 'admin_evaluation' %}" class="{% if request.path == '/admin_evaluation/' or request.path == '/ ' %}active{% endif %}"><i class="fas fa-clipboard-list"></i> Events</a></li>
+        <li><a href="{% url 'admin_student_evaluation' %}" class="{% if request.path == '/admin_student_evaluation/' or request.path == '/ ' %}active{% endif %}"><i class="fa-brands fa-wpforms"></i> Students</a></li>
         <li><a href="{% url 'admin_about' %}" class="{% if request.path == '/admin_about/' or request.path == '/ ' %}active{% endif %}"><i class="fas fa-info-circle"></i> About</a></li>
     </ul>
     <a href="{% url 'login' %}" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>

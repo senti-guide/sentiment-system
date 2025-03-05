@@ -12,59 +12,74 @@
 <body>
     <!-- Unified Flex Container -->
     <div class="container">
-        <!-- Include Navbar -->
-        {% include 'student_navbar.html' %}
-        
-        <!-- Main Content -->
-        <div class="profile-container">
-            <!-- Banner section -->
-            <div class="banner"></div>
-          
-            <!-- Profile icon -->
-            <div class="profile-icon"><img src="{% static 'profile-icon.png' %}" alt="Google Icon" class="google-icon"></div>
-          
-            <!-- Profile details -->
-            <div class="profile-details">
-              <h1 class="profile-name">{{ user.email }}</h1>
-              <p class="profile-info">
-                {% if user.profile.program and user.profile.year_level %}
-                  {{ user.profile.program }} • {{ user.profile.year_level }}
-                {% else %}
-                  Program • Year Level
-                {% endif %}
-              </p>
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="logo-container">
+                <img class="logo" src="{% static 'SG_LOGO.png' %}" alt="Senti Guide Logo">
+                <h2 class="logo-text">Senti Guide</h2>
             </div>
-          
-            <!-- Profile section -->
-            <div class="profile-setup">
-                <form class="profile-form" method="POST" action="{% url 'student_home' %}">
-                    {% csrf_token %}
-                    <label for="program">Program:</label>
-                    <select id="program" name="program" {% if user.profile.program %}disabled{% endif %} required>
-                        <option value="" disabled {% if not user.profile.program %}selected{% endif %}>Please select your program</option>
-                        <option value="BSCS" {% if user.profile.program == 'BSCS' %}selected{% endif %}>BSCS</option>
-                        <option value="BSHM" {% if user.profile.program == 'BSHM' %}selected{% endif %}>BSHM</option>
-                        <option value="BSES" {% if user.profile.program == 'BSES' %}selected{% endif %}>BSES</option>
-                        <option value="BEED" {% if user.profile.program == 'BEED' %}selected{% endif %}>BEED</option>
-                        <option value="BTLED-HE" {% if user.profile.program == 'BTLED-HE' %}selected{% endif %}>BTLED-HE</option>
-                        <option value="BSED-MATH" {% if user.profile.program == 'BSED-MATH' %}selected{% endif %}>BSED-MATH</option>
-                    </select>
-                    
-                    <label for="year_level">Year Level:</label>
-                    <select id="year_level" name="year_level" {% if user.profile.year_level %}disabled{% endif %} required>
-                        <option value="" disabled {% if not user.profile.year_level %}selected{% endif %}>Please select your year level</option>
-                        <option value="1st Year" {% if user.profile.year_level == '1st Year' %}selected{% endif %}>1st Year</option>
-                        <option value="2nd Year" {% if user.profile.year_level == '2nd Year' %}selected{% endif %}>2nd Year</option>
-                        <option value="3rd Year" {% if user.profile.year_level == '3rd Year' %}selected{% endif %}>3rd Year</option>
-                        <option value="4th Year" {% if user.profile.year_level == '4th Year' %}selected{% endif %}>4th Year</option>
-                        <option value="5th Year" {% if user.profile.year_level == '5th Year' %}selected{% endif %}>5th Year and Above</option>
-                    </select>
-                    
-                    <div class="buttons">
-                        <button type="submit" class="save-btn">Save</button>
-                        <button type="button" class="edit-btn" id="edit-button" {% if not user.profile.program or not user.profile.year_level %}disabled{% endif %}>Edit</button>
+        </div>
+
+        <!-- Sidebar/Navbar and Main Content -->
+        <div class="content-wrapper">
+            <!-- Sidebar/Navbar -->
+            <div class="sidebar">
+                {% include 'student_navbar.html' %}
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="profile-container">
+                    <!-- Banner section -->
+                    <div class="banner"></div>
+                  
+                    <!-- Profile icon -->
+                    <div class="profile-icon"><img src="{% static 'profile-icon.png' %}" alt="Google Icon" class="google-icon"></div>
+                  
+                    <!-- Profile details -->
+                    <div class="profile-details">
+                      <h1 class="profile-name">{{ user.first_name }} {{ user.last_name|first }}.</h1>
+                      <p class="profile-info">
+                        {% if user.profile.program and user.profile.year_level %}
+                          {{ user.profile.program }} • {{ user.profile.year_level }}
+                        {% else %}
+                          Program • Year Level
+                        {% endif %}
+                      </p>
                     </div>
-                </form>
+                  
+                    <!-- Profile section -->
+                    <div class="profile-setup">
+                        <form class="profile-form" method="POST" action="{% url 'student_home' %}">
+                            {% csrf_token %}
+                            <label for="program">Program:</label>
+                            <select id="program" name="program" {% if user.profile.program %}disabled{% endif %} required>
+                                <option value="" disabled {% if not user.profile.program %}selected{% endif %}>Please select your program</option>
+                                <option value="BSCS" {% if user.profile.program == 'BSCS' %}selected{% endif %}>BSCS</option>
+                                <option value="BSHM" {% if user.profile.program == 'BSHM' %}selected{% endif %}>BSHM</option>
+                                <option value="BSES" {% if user.profile.program == 'BSES' %}selected{% endif %}>BSES</option>
+                                <option value="BEED" {% if user.profile.program == 'BEED' %}selected{% endif %}>BEED</option>
+                                <option value="BTLED-HE" {% if user.profile.program == 'BTLED-HE' %}selected{% endif %}>BTLED-HE</option>
+                                <option value="BSED-MATH" {% if user.profile.program == 'BSED-MATH' %}selected{% endif %}>BSED-MATH</option>
+                            </select>
+                            
+                            <label for="year_level">Year Level:</label>
+                            <select id="year_level" name="year_level" {% if user.profile.year_level %}disabled{% endif %} required>
+                                <option value="" disabled {% if not user.profile.year_level %}selected{% endif %}>Please select your year level</option>
+                                <option value="1st Year" {% if user.profile.year_level == '1st Year' %}selected{% endif %}>1st Year</option>
+                                <option value="2nd Year" {% if user.profile.year_level == '2nd Year' %}selected{% endif %}>2nd Year</option>
+                                <option value="3rd Year" {% if user.profile.year_level == '3rd Year' %}selected{% endif %}>3rd Year</option>
+                                <option value="4th Year" {% if user.profile.year_level == '4th Year' %}selected{% endif %}>4th Year</option>
+                                <option value="5th Year" {% if user.profile.year_level == '5th Year' %}selected{% endif %}>5th Year and Above</option>
+                            </select>
+                            
+                            <div class="buttons">
+                                <button type="submit" class="save-btn">Save</button>
+                                <button type="button" class="edit-btn" id="edit-button" {% if not user.profile.program or not user.profile.year_level %}disabled{% endif %}>Edit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

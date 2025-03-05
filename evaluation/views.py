@@ -141,8 +141,34 @@ def student_home_view(request):
 @login_required
 @user_passes_test(is_student)
 def student_evaluation_view(request):
-    # Fetch all events
+    # Get search and filter parameters
+    search_query = request.GET.get("search", "").strip()
+    filter_status = request.GET.get("status", "")
+    filter_month = request.GET.get("month", "")
+    filter_year = request.GET.get("year", "")
+    filter_semester = request.GET.get("semester", "")
+
+    # Start with all events
     events = Event.objects.all()
+
+    # Apply search filter (case-insensitive search in event title)
+    if search_query:
+        events = events.filter(title__icontains=search_query)
+
+    # Apply month filter
+    if filter_month and filter_month != "all":
+        events = events.filter(date__month=filter_month)
+
+    # Apply year filter
+    if filter_year and filter_year != "all":
+        events = events.filter(date__year=filter_year)
+
+    # Apply semester filter
+    if filter_semester and filter_semester != "all":
+        events = events.filter(semester=filter_semester)
+
+    # Sort events by most recent date
+    events = events.order_by('-date')
 
     # Add evaluation status for the logged-in user to each event
     for event in events:
@@ -153,7 +179,29 @@ def student_evaluation_view(request):
             "waiting"
         )
 
-    return render(request, 'student_evaluation.html', {'events': events})
+    # Apply status filter based on computed evaluation_status
+    if filter_status and filter_status != "all":
+        events = [event for event in events if event.evaluation_status == filter_status]
+
+    # Extract unique months, years, and semesters for dropdowns
+    unique_months = Event.objects.annotate(month=ExtractMonth('date')).values_list('month', flat=True).distinct()
+    unique_years = Event.objects.annotate(year=ExtractYear('date')).values_list('year', flat=True).distinct()
+    unique_semesters = Event.objects.values_list('semester', flat=True).distinct()
+
+    month_choices = [(month, calendar.month_name[month]) for month in sorted(unique_months)]
+    year_choices = sorted(unique_years, reverse=True)
+    semester_choices = sorted(unique_semesters)
+
+    context = {
+        'events': events,
+        "month_choices": month_choices,
+        "year_choices": year_choices,
+        "semester_choices": semester_choices,
+    }
+
+    return render(request, 'student_evaluation.html', context)
+
+
 
 
 @login_required
@@ -168,7 +216,7 @@ from .models import Event
 @user_passes_test(is_student)
 def student_evaluation_form_view(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    return render(request, 'student_evaluation_form.html', {'event_id': event_id, 'event_title': event.title})
+    return render(request, 'student_evaluation_form.html', {'event_id': event_id, 'event_title': event.title, 'semester': event.semester,})
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -243,6 +291,11 @@ from django.db.models import Count
 from django.shortcuts import render
 from .models import Evaluation, Event
 
+from django.db.models import Count, Q, F, ExpressionWrapper, FloatField
+from django.shortcuts import render
+from .models import Evaluation, Event
+from django.contrib.auth.decorators import user_passes_test
+
 @user_passes_test(is_admin)
 def admin_dashboard_view(request):
     # Get all events
@@ -252,54 +305,107 @@ def admin_dashboard_view(request):
     event_data = []
 
     for event in events:
-        # Fetch evaluations for this event
         evaluations = Evaluation.objects.filter(event=event)
 
-        # Initialize sentiment counts
-        positive_count = 0
-        negative_count = 0
+        positive_count = evaluations.filter(sentiment_label='Positive').count()
+        negative_count = evaluations.filter(sentiment_label='Negative').count()
 
-        # Count sentiments for each evaluation
-        for evaluation in evaluations:
-            sentiment = evaluation.sentiment_label
-            if sentiment == 'Positive':
-                positive_count += 1
-            elif sentiment == 'Negative':
-                negative_count += 1
-
-        # Total responses
         total_responses = evaluations.count()
 
-        # Calculate percentages
         if total_responses > 0:
             positive_percentage = round((positive_count / total_responses) * 100, 2)
             negative_percentage = round((negative_count / total_responses) * 100, 2)
         else:
             positive_percentage = negative_percentage = 0.00
 
-        # Append event data (only the title and percentages)
         event_data.append({
             'title': event.title,
             'positive_percentage': positive_percentage,
             'negative_percentage': negative_percentage,
         })
 
-    # Sort the events based on positive_percentage in descending order and limit to the top 5
+    # Sort and get the top 5 events
     sorted_positive_events = sorted(event_data, key=lambda x: x['positive_percentage'], reverse=True)[:5]
-
-    # Sort the events based on negative_percentage in descending order and limit to the top 5
     sorted_negative_events = sorted(event_data, key=lambda x: x['negative_percentage'], reverse=True)[:5]
 
-    # Pass the event data to the template
+    # Sentiment breakdown by program (calculating percentages)
+    sentiment_by_program = list(
+        Evaluation.objects.values('program')
+        .annotate(
+            total_count=Count('id'),
+            positive_count=Count('sentiment_label', filter=Q(sentiment_label='Positive')),
+            neutral_count=Count('sentiment_label', filter=Q(sentiment_label='Neutral')),
+            negative_count=Count('sentiment_label', filter=Q(sentiment_label='Negative'))
+        )
+    )
+
+    # Convert counts to percentages
+    for item in sentiment_by_program:
+        total = item['total_count']
+        item['positive_percentage'] = round((item['positive_count'] / total) * 100, 2) if total > 0 else 0.00
+        item['neutral_percentage'] = round((item['neutral_count'] / total) * 100, 2) if total > 0 else 0.00
+        item['negative_percentage'] = round((item['negative_count'] / total) * 100, 2) if total > 0 else 0.00
+
+    # Sentiment breakdown by year level (calculating percentages)
+    sentiment_by_year_level = list(
+        Evaluation.objects.values('year_level')
+        .annotate(
+            total_count=Count('id'),
+            positive_count=Count('sentiment_label', filter=Q(sentiment_label='Positive')),
+            neutral_count=Count('sentiment_label', filter=Q(sentiment_label='Neutral')),
+            negative_count=Count('sentiment_label', filter=Q(sentiment_label='Negative'))
+        )
+    )
+
+    # Convert counts to percentages
+    for item in sentiment_by_year_level:
+        total = item['total_count']
+        item['positive_percentage'] = round((item['positive_count'] / total) * 100, 2) if total > 0 else 0.00
+        item['neutral_percentage'] = round((item['neutral_count'] / total) * 100, 2) if total > 0 else 0.00
+        item['negative_percentage'] = round((item['negative_count'] / total) * 100, 2) if total > 0 else 0.00
+
+    # Pass the data to the template
     context = {
         'positive_events': sorted_positive_events,
         'negative_events': sorted_negative_events,
+        'sentiment_by_program': sentiment_by_program,
+        'sentiment_by_year_level': sentiment_by_year_level,
     }
 
     return render(request, 'admin_dashboard.html', context)
 
+from django.http import JsonResponse
+from .models import Evaluation
+
+def get_chart_data(request):
+    # Get latest data dynamically from the database
+    positive_events = Evaluation.objects.order_by('-positive_percentage')[:5]
+    negative_events = Evaluation.objects.order_by('-negative_percentage')[:5]
+    
+    sentiment_by_program = Evaluation.objects.values('program').annotate(
+        positive_percentage=Avg('positive_percentage'),
+        neutral_percentage=Avg('neutral_percentage'),
+        negative_percentage=Avg('negative_percentage')
+    )
+
+    sentiment_by_year_level = Evaluation.objects.values('year_level').annotate(
+        positive_percentage=Avg('positive_percentage'),
+        neutral_percentage=Avg('neutral_percentage'),
+        negative_percentage=Avg('negative_percentage')
+    )
+
+    data = {
+        'positive_events': list(positive_events.values('title', 'positive_percentage')),
+        'negative_events': list(negative_events.values('title', 'negative_percentage')),
+        'sentiment_by_program': list(sentiment_by_program),
+        'sentiment_by_year_level': list(sentiment_by_year_level),
+    }
+    
+    return JsonResponse(data)
+
+
 # Word Cloud
-from wordcloud import WordCloud
+from wordcloud import WordCloud, STOPWORDS
 from django.http import HttpResponse
 import matplotlib
 import matplotlib.pyplot as plt
@@ -314,8 +420,13 @@ def generate_wordcloud_view(request):
     comments = Evaluation.objects.values_list('comments', flat=True)
     all_comments = " ".join(filter(None, comments))
 
-    # Generate Word Cloud
-    wordcloud = WordCloud(width=800, height=400, background_color="white").generate(all_comments)
+    # Use built-in stopwords and add custom ones
+    stopwords = set(STOPWORDS)
+    custom_stopwords = {"event", "really", "much", "SSG", "especially", "time", "next", "lot"}  # Add your custom stopwords here
+    stopwords.update(custom_stopwords)
+
+    # Generate Word Cloud with stopwords
+    wordcloud = WordCloud(width=800, height=400, background_color="white", stopwords=stopwords).generate(all_comments)
     
     # Save the image to a buffer
     buffer = io.BytesIO()
@@ -329,53 +440,157 @@ def generate_wordcloud_view(request):
     # Return the generated image as a response
     return HttpResponse(buffer, content_type="image/png")
 
+from allauth.socialaccount.models import SocialAccount
+
+@user_passes_test(is_admin)
+def admin_student_evaluation_view(request):
+    # Get all students (not just those who evaluated)
+    students = User.objects.filter(groups__name='students').order_by('email')
+
+    # Get all events
+    total_events = Event.objects.count()
+
+    # Get filtering parameters from the request
+    search_query = request.GET.get('search', '').strip().lower()
+    filter_option = request.GET.get('filter', '')
+
+    evaluations_data = []
+    for student in students:
+        evaluated_count = Evaluation.objects.filter(student=student, is_submitted=True).count()
+
+        # Fetch UID from SocialAccount (if exists)
+        social_account = SocialAccount.objects.filter(user=student).first()
+        uid = social_account.uid if social_account else "N/A"  # Handle cases where no social account exists
+
+        # Apply filtering
+        if filter_option == 'submitted' and evaluated_count == 0:
+            continue  # Skip students who have NOT submitted if filter is 'submitted'
+        elif filter_option == 'not-submitted' and evaluated_count > 0:
+            continue  # Skip students who HAVE submitted if filter is 'not-submitted'
+
+        # Apply search filtering
+        if search_query and search_query not in student.email.lower():
+            continue  # Skip students that don't match search
+
+        evaluations_data.append({
+            'student': student,
+            'evaluated_count': evaluated_count,
+            'total_events': total_events,
+            'uid': uid,  # Include UID in context
+        })
+
+    return render(request, 'admin_student_evaluation.html', {
+        'evaluations_data': evaluations_data
+    })
+
+
+
+
+@user_passes_test(is_admin)
+def admin_student_evaluated_events_view(request, student_id):
+    student = User.objects.get(id=student_id)  # Get the student
+    events = Event.objects.all().order_by('-date')  # Sort events by newest first
+
+    evaluations_data = []
+    
+    for event in events:
+        evaluation = Evaluation.objects.filter(student=student, event=event).first()
+        
+        if evaluation:
+            status = "Submitted" if evaluation.is_submitted else "Pending"
+        else:
+            status = "Not Submitted"
+
+        evaluations_data.append({
+            'event': event,
+            'date': event.date,  # Include event date
+            'semester': event.semester,
+            'status': status,
+        })
+
+    return render(request, 'admin_student_evaluated_events.html', {
+        'student': student,
+        'evaluations_data': evaluations_data
+    })
+
 
 @user_passes_test(is_admin)
 def admin_about_view(request):
     return render(request, 'admin_about.html')
 
+from django.db.models import Q
+from django.db.models.functions import ExtractMonth, ExtractYear
+import calendar
+
 @user_passes_test(is_admin)
 def admin_evaluation_view(request):
-    if request.method == 'POST':
-        # Handle event creation
-        title = request.POST.get('event_title')
-        date = request.POST.get('event_date')
+    if request.method == "POST":
+        event_id = request.POST.get("event_id")
+        event_title = request.POST.get("event_title")
+        event_date = request.POST.get("event_date")
+        event_semester = request.POST.get("event_semester")
 
-        if title and date:
-            Event.objects.create(title=title, date=date)
-            # Redirect to prevent duplicate form submissions on refresh
-            return redirect('admin_evaluation')  # Replace with your URL name if different
+        if event_id:
+            event = get_object_or_404(Event, id=event_id)
+            event.title = event_title
+            event.date = event_date
+            event.semester = event_semester
+            event.save()
+        else:
+            Event.objects.create(
+                title=event_title,
+                date=event_date,
+                semester=event_semester
+            )
+        return redirect("admin_evaluation")
 
-    # Fetch all events
+    # Get search and filter parameters from the request
+    search_query = request.GET.get("search", "").strip()
+    filter_month = request.GET.get("month", "")
+    filter_year = request.GET.get("year", "")
+    filter_semester = request.GET.get("semester", "")
+
+    # Start with all events
     events = Event.objects.all()
 
-    # Data for each event
+    # Apply search filter (case-insensitive search in event title)
+    if search_query:
+        events = events.filter(title__icontains=search_query)
+
+    # Apply month filter
+    if filter_month and filter_month != "all":
+        events = events.filter(date__month=filter_month)
+
+    # Apply year filter
+    if filter_year and filter_year != "all":
+        events = events.filter(date__year=filter_year)
+
+    # Apply semester filter
+    if filter_semester and filter_semester != "all":
+        events = events.filter(semester=filter_semester)
+
+    # Sort by date (most recent first)
+    events = events.order_by('-date')
+
+    # Extract unique months, years, and semesters for dropdowns
+    unique_months = Event.objects.annotate(month=ExtractMonth('date')).values_list('month', flat=True).distinct()
+    unique_years = Event.objects.annotate(year=ExtractYear('date')).values_list('year', flat=True).distinct()
+    unique_semesters = Event.objects.values_list('semester', flat=True).distinct()
+
+    month_choices = [(month, calendar.month_name[month]) for month in sorted(unique_months)]
+    year_choices = sorted(unique_years, reverse=True)
+    semester_choices = sorted(unique_semesters)
+
+    # Process event data for sentiment distribution
     event_data = []
-
     for event in events:
-        # Fetch evaluations related to this event
         evaluations = Evaluation.objects.filter(event=event)
-
-        # Count total responses (evaluations)
         total_responses = evaluations.count()
 
-        # Initialize counts for each sentiment type
-        positive_count = 0
-        neutral_count = 0
-        negative_count = 0
+        positive_count = evaluations.filter(sentiment_label="Positive").count()
+        neutral_count = evaluations.filter(sentiment_label="Neutral").count()
+        negative_count = evaluations.filter(sentiment_label="Negative").count()
 
-        # Loop through evaluations and count sentiments
-        for evaluation in evaluations:
-            sentiment = evaluation.sentiment_label  # Using the sentiment_label directly
-
-            if sentiment == 'Positive':
-                positive_count += 1
-            elif sentiment == 'Neutral':
-                neutral_count += 1
-            elif sentiment == 'Negative':
-                negative_count += 1
-
-        # Calculate sentiment distribution percentages
         if total_responses > 0:
             positive_percentage = round((positive_count / total_responses) * 100, 2)
             neutral_percentage = round((neutral_count / total_responses) * 100, 2)
@@ -383,23 +598,26 @@ def admin_evaluation_view(request):
         else:
             positive_percentage = neutral_percentage = negative_percentage = 0.00
 
-        # Add event data to the list
         event_data.append({
-            'id': event.id,  # Add the event ID here
+            'id': event.id,
             'title': event.title,
             'date': event.date,
+            'semester': event.semester,
             'total_responses': total_responses,
             'positive_percentage': positive_percentage,
             'neutral_percentage': neutral_percentage,
             'negative_percentage': negative_percentage,
         })
 
-    # Pass the data to the template
     context = {
         'event_data': event_data,
+        "month_choices": month_choices,
+        "year_choices": year_choices,
+        "semester_choices": semester_choices,
     }
 
     return render(request, 'admin_evaluation.html', context)
+
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import get_object_or_404, render
@@ -488,6 +706,22 @@ def admin_results_view(request, event_id):
     }
 
     return render(request, "admin_results.html", context)
+
+from django.shortcuts import get_object_or_404, redirect
+from .models import Event
+
+# View to delete an event
+def delete_event(request, event_id):
+
+    # Get the event object or 404 if it doesn't exist
+    event = get_object_or_404(Event, id=event_id)
+
+    # Delete the event
+    event.delete()
+
+    # Redirect to the event list page (admin_evaluation page)
+    return redirect('admin_evaluation')
+
 
 
 from django.contrib.auth import logout

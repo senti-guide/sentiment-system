@@ -1,0 +1,39 @@
+<tbody id="event-table-body">
+    {% for event in events %}
+    <tr>
+        <td>{{ event.title }}</td>
+        <td>{{ event.date|date:"m/d/Y" }}</td>
+        <td>
+            {% if event.semester == "1st Semester" %}
+                1st
+            {% elif event.semester == "2nd Semester" %}
+                2nd
+            {% else %}
+                {{ event.semester }}
+            {% endif %}
+        </td>
+
+        <!-- Evaluation Status -->
+        <td>
+            {% if event.evaluation_status == "submitted" %}
+                <span class="status submitted"></span> Submitted
+            {% elif event.evaluation_status == "pending" %}
+                <span class="status pending"></span> Pending
+            {% else %}
+                <span class="status waiting"></span> Waiting for Response
+            {% endif %}
+        </td>
+
+        <!-- EVALUATE Button -->
+        <td>
+            {% if event.evaluation_status == "submitted" %}
+                <button class="evaluate-btn" disabled>Evaluate</button>
+            {% else %}
+                <a href="{% url 'student_evaluation_form' event.id %}">
+                    <button class="evaluate-btn">Evaluate</button>
+                </a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

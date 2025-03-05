@@ -5,6 +5,15 @@ from django.contrib.auth.models import User  # Import the User model
 class Event(models.Model):
     title = models.CharField(max_length=200)
     date = models.DateField()
+    semester = models.CharField(
+        max_length=20,
+        choices=[
+            ("1st Semester", "1st Semester"),
+            ("2nd Semester", "2nd Semester"),
+        ],
+        null=True,  # Allow old events to have no semester initially
+        blank=True
+    )
 
     def __str__(self):
         return self.title

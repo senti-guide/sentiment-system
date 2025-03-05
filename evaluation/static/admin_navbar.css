@@ -1,13 +1,6 @@
-/* Container Layout */
-.container {
-    display: flex;
-    height: 100vh;
-    width: 100%;
-}
-
 /* Sidebar Styling */
 .sidebar {
-    width: 250px; /* Fixed width for sidebar */
+    width: 250px;
     background-color: #2196F3;
     color: white;
     display: flex;
@@ -15,8 +8,6 @@
     align-items: center;
     padding-top: 20px;
     text-align: center;
-    z-index: 1; /* Ensure sidebar is above other content */
-    flex-shrink: 0; /* Prevent sidebar from shrinking */
 }
 
 .sidebar .logo {
@@ -37,8 +28,6 @@
 .nav-links {
     list-style: none;
     width: 100%;
-    padding: 0;
-    margin: 0;
 }
 
 .nav-links li {
@@ -55,7 +44,7 @@
     transition: background-color 0.3s;
 }
 
-.nav-links a:hover {
+.nav-links a:hover{
     background-color: #1A73E8;
 }
 
