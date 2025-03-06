@@ -121,7 +121,7 @@ DATABASES = {
 # Use Render PostgreSQL when deployed
 DATABASE_URL = os.getenv('DATABASE_URL')  # Render will provide this automatically
 if DATABASE_URL:
-    DATABASES['default'] = dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True)
+    DATABASES['default'] = dj_database_url.config(default=DATABASE_URL, conn_max_age=600, ssl_require=True) 
 
 
 # Password validation
