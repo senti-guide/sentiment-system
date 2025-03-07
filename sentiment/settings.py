@@ -70,6 +70,7 @@ SOCIALACCOUNT_PROVIDERS = {
          'AUTH_PARAMS': {'access_type': 'online'},
         'METHOD': 'oauth2',
         'VERIFIED_EMAIL': True,
+        'REDIRECT_URI': 'https://sentiment-system.onrender.com/accounts/google/login/callback/'
     },
 }
 
