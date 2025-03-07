@@ -74,8 +74,8 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 SOCIALACCOUNT_LOGIN_ON_GET=True
-LOGIN_REDIRECT_URL = '/google-login-redirect/'  # Ensure this maps to your google_login_redirect view
-ACCOUNT_SIGNUP_REDIRECT_URL = '/google-login-redirect/'  # Ensure new users follow the same redirection logic
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_SIGNUP_REDIRECT_URL = '/'
 
 
 MIDDLEWARE = [
