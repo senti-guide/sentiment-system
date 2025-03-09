@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
 ]
 
-SITE_ID = 2
+SITE_ID = 1
 
 # Application definition
 
@@ -70,13 +70,12 @@ SOCIALACCOUNT_PROVIDERS = {
          'AUTH_PARAMS': {'access_type': 'online'},
         'METHOD': 'oauth2',
         'VERIFIED_EMAIL': True,
-        'REDIRECT_URI': 'https://sentiment-system.onrender.com/accounts/google/login/callback/'
     },
 }
 
 SOCIALACCOUNT_LOGIN_ON_GET=True
-LOGIN_REDIRECT_URL = '/'
-ACCOUNT_SIGNUP_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/google-login-redirect/'  # Ensure this maps to your google_login_redirect view
+ACCOUNT_SIGNUP_REDIRECT_URL = '/google-login-redirect/'  # Ensure new users follow the same redirection logic
 
 
 MIDDLEWARE = [
@@ -174,8 +173,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-SECURE_SSL_REDIRECT = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
