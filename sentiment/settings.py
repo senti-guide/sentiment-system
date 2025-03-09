@@ -37,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
 ]
 
-SITE_ID = 1
+SITE_ID = 2
 
 # Application definition
 
